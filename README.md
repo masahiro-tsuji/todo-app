@@ -6,6 +6,8 @@
 docker compose up dev --build
 ```
 
+- `package.json`が変更されていなければ `--build` オプションはなくても良い
+
 ## 本番環境の起動
 
 ```cli
