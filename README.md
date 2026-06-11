@@ -19,3 +19,9 @@ docker compose up prod --build
 ```cli
 docker compose down
 ```
+
+## 参考資料
+
+- [Deploying](https://nextjs.org/docs/app/getting-started/deploying)
+- [非標準の`NODE_ENV`](https://nextjs.org/docs/messages/non-standard-node-env)
+- [Next.jsアプリケーションをコンテナ化する](https://docs.docker.com/guides/nextjs/containerize/)
