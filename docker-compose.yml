@@ -8,7 +8,7 @@ services:
     ports:
       - '3000:3000'
     volumes:
-      - .:/app # パソコンのコード変更をコンテナにリアルタイム同期（マウント）
+      - .:/app # コード変更をコンテナにリアルタイム同期（マウント）
       - /app/node_modules # コンテナ内のライブラリが上書きされて消えるのを防ぐ
     environment:
       - WATCHPACK_POLLING=true # ホットリロードの設定
