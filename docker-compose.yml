@@ -2,7 +2,7 @@ services:
   # 開発用
   dev:
     build:
-      context: .
+      context: . # 現在のディレクトリのDockerfileを指定
       target: dev # Dockerfileの 「as dev」までを実行
     container_name: todo-dev
     ports:
