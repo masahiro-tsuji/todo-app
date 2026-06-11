@@ -1,0 +1,24 @@
+services:
+  # 開発用
+  dev:
+    build:
+      context: .
+      target: dev # Dockerfileの 「as dev」までを実行
+    container_name: todo-dev
+    ports:
+      - '3000:3000'
+    volumes:
+      - .:/app # パソコンのコード変更をコンテナにリアルタイム同期（マウント）
+      - /app/node_modules # コンテナ内のライブラリが上書きされて消えるのを防ぐ
+    environment:
+      - WATCHPACK_POLLING=true # ホットリロードの設定
+    command: npm run dev # Dockerfileの末尾のCMDを「開発用サーバー起動」に上書き
+
+  # 本番用
+  prod:
+    build:
+      context: .
+      target: prod
+    container_name: todo-prod
+    ports:
+      - '8080:3000'
