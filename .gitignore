@@ -27,3 +27,5 @@ out/
 *.local
 .vscode/
 .idea/
+# Jest coverage
+coverage/

@@ -18,9 +18,7 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 # テストを実行し、成功したらビルドする
-# Jest入れたらこっちを使用
-# RUN npm run test && npm run build 
-RUN npm run build
+RUN npm run test && npm run build 
 
 # ========================================================
 # 本番用開発ビルド
