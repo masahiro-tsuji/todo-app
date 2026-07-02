@@ -20,6 +20,12 @@ docker compose up prod --build
 docker compose down
 ```
 
+ライブラリ更新後は下記コマンドで停止
+
+```ci
+ docker compose down -v
+```
+
 ## 参考資料
 
 - [Deploying](https://nextjs.org/docs/app/getting-started/deploying)
