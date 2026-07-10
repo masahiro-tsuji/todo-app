@@ -22,7 +22,7 @@ docker compose down
 
 ライブラリ更新後は下記コマンドで停止
 
-```ci
+```cii
  docker compose down -v
 ```
 
