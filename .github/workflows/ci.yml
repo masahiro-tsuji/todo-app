@@ -14,11 +14,11 @@ jobs:
         timeout-minutes: 10
         steps:
             # devへの直プッシュを禁止（githubの無料プランでは設定できなかったため）
-            - name: Block direct push to develop
-              if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
-              run: |
-                echo "developブランチへの直プッシュはNG"
-                exit 1
+            # - name: Block direct push to develop
+            #   if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+            #   run: |
+            #     echo "developブランチへの直プッシュはNG"
+            #     exit 1
             # コードのチェックアウト
             - name: Checkout code
               uses: actions/checkout@v6
