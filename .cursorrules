@@ -28,6 +28,9 @@ src/
 │       │   └─ use〇〇.ts  # index.tsxのみで呼び出すカスタムhook
 │       ├─ tests/
 │       │   └─ [index.tsxのコンポーネント名].test.tsx  # Jestのテストコード
+│       ├─ types/
+│       │   └─ 〇〇.ts # ファイル名はアッパーキャメルケースとする
+│       │   └─ index.ts # types内のexportをまとめる
 │       └─ index.tsx  # 外部への公開用（エクスポート）
 └─ hooks/ # 共通カスタムhooksをまとめるディレクトリ
 │   ├─ use〇〇.ts  # 複数箇所で使用するカスタムhookファイル
@@ -37,6 +40,10 @@ src/
     ├─ 〇〇.ts  # 各関数は役割ごとに個別のファイル（`〇〇.ts`）として作成
     ├─ △△.ts
     └─ index.ts  # utils内の export をまとめる
+└─ types/ # 共通で使用する型定義をまとめるディレクトリ
+    ├─ 〇〇.ts   # ファイル名はアッパーキャメルケースとする
+    ├─ △△.ts
+    └─ index.ts  # types内の export をまとめる
 ```
 
 ### `src/components/`
@@ -48,37 +55,64 @@ src/
   - 作成したコンポーネントは、`index.ts`で`export`し、`index.ts`から呼び出すこと
     参考：`src/components/Button.tsx`
 
-### `src/features/`
+### `src/features/[feature-name]`
 
-#### index.tsx
+#### `index.tsx`
 
 - 1つのコンポーネントを `export` すこと
 - ファイル名は index.tsx とし、内部で export const Login = ... のようにアロー関数で名前付きエクスポート（Named Export）する
 - 300行を超える場合は、コンポーネントを`/components/UI.tsx`の様に切り分けること
 - 機能にまつわるロジックをまとめること
-  - UIに関するロジックは、`index.tsx`に記述すること
-  - それ以外のロジックについては、`src/features/hooks` にまとまること
+  - UIに関するロジック（onChange, onBlurなどに渡す関数）は、`index.tsx`に記載すること
+  - APIの処理については、`src/features/hooks`にまとめること
 - 必要な `page.tsx` で `import` すること
 - `feature` 同士で `import` しないこと（依存関係にならないこと）
-- 300行以内に収まる場合は、`components`への切り分け禁止
+- 300行以内 に収まる場合は、`src/features/[feature-name]/components`への切り分けを禁止とする
 
-#### tests/
+#### `tests/`
 
 - `index.tsx`の`UI`が正しく動作するかのテストコードを記述すること
 
-### `src/hooks/`
+#### `hooks/`
 
 - `hooks`のファイル名は、`useLogin.ts`など`use[機能名].ts`にすること
 - 作成した`hooks`は`index.ts`で`export`し、`index.ts`から呼び出すこと
 
+#### `types/`
+
+- 機能内で使用する型定義を格納すること
+- 機能外での使用を禁止する
+- 同一の型を 他の機能・`page.tsx`で使用する場合は、`src/types`へ移行すること
+
+### `src/hooks/`
+
+- プロジェクト全体で使用する`hooks`を定義すること
+
 ### `src/utils/`
 
-#### 構成ルール
-
+- プロジェクト全体で使用する関数を定義すること
 - 各関数は役割ごとに個別のファイル（`〇〇.ts`）とすること。
 - 外部（`src` 配下など）から利用する関数は、必ず `index.ts` を経由してエクスポート（バレルファイル運用）すること
 
-#### index.ts の書き方
+### `src/types/`
+
+- プロジェクト全体で使用する型定義を格納すること
+
+## コーディング規約
+
+### ツールと品質
+
+- `Biome` の `lint/format` に従うこと（`npm run lint` / `npm run format`）
+- 1ファイル300行以内とし、超える場合はファイルを適切に分割すること
+- 型を`import`する場合は、`import { type ChangeEvent, type SubmitEvent } from 'react';`の様に`type`を付与すること
+
+### TypeScriptとReactの記述
+
+- 型定義は `type` を使用すること
+- 関数コンポーネントの `return` 内にロジックを記述しないこと（`return`の外で関数定義し、コンポーネントに渡すこと）
+- 他の機能に同じ処理がある場合、`src/utils`, `src/hooks`に移して共通化すること（同じ処理を複数箇所で定義しないこと）
+
+### 各`index.ts` の書き方
 
 新しい関数を追加した際は、`index.ts` に以下のように追記すること
 
@@ -87,26 +121,17 @@ export * from './〇〇';
 export * from './△△';
 ```
 
-## コーディング規約
-
-### ツールと品質
-
-- `Biome` の `lint/format` に従う（`npm run lint` / `npm run format`）
-- 1ファイル300行以内とし、超える場合はファイルを適切に分割すること
-
-### TypeScriptとReactの記述
-
-- 型定義は `type` を使用すること
-- 関数コンポーネントの `return` 内にロジックを記述しないこと（`return`の外で関数定義し、コンポーネントに渡すこと）
-- 他の機能に同じ処理がある場合、`src/utils`, `src/hooks`に移して共通化すること（同じ処理を複数箇所で定義しないこと）
-
 ### 制御フロー
 
 - 三項演算子を積極的に使用すること。但し、ネストする場合は `if - else` を使用すること
-- 基本的に`switch文`は使用しないこと
+- `switch文` は基本的に使用しないこと
 - `if - else` 内の処理が1行で済む場合は、`{}` は不要とする
 
-### スタイリング(MUI)
+### UI/スタイリング(MUI)
 
 - `MUI`の`sx`プロパティで使用する色は`/theme.ts`を使用すること
-- `UI`は`src/components`の共通コンポーネントを使用すること。もし存在しない場合は、「### `src/components`」を参考に共通コンポーネントを作成して、使用すること
+- `UI`は`src/components`の共通コンポーネントを使用すること。存在しない場合は、「### `src/components`」を参考に共通コンポーネントを作成し、使用すること
+
+### 入力フォーム
+
+- 入力フォームの実装は、`react-hook-form`(`rhf`)、`zod`を組み合わせて使用すること
