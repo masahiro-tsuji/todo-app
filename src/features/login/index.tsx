@@ -1,9 +1,12 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Box, Paper, type SxProps, TextField, Typography } from '@mui/material';
-import { type ChangeEvent, type SubmitEvent, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
 import { Button } from '@/components';
 import { theme } from '../../../theme';
+import { type LoginForm, loginFormSchema } from './types';
 
 const boxProps: SxProps = {
   display: 'flex',
@@ -14,20 +17,22 @@ const boxProps: SxProps = {
 };
 
 export const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const router = useRouter();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginForm>({
+    mode: 'all',
+    resolver: zodResolver(loginFormSchema),
+    defaultValues: { email: '', password: '' },
+  });
 
-  const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-  };
+  // const onSubmit = (_data: LoginForm) => {
+  //   router.push('/list');
+  // };
 
-  const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
-  };
-
-  const handleSubmit = (event: SubmitEvent<HTMLFormElement>) => {
-    event.preventDefault();
-  };
+  const onClick = () => router.push('/list');
 
   return (
     <Box sx={boxProps}>
@@ -35,26 +40,30 @@ export const Login = () => {
         <Typography variant="h5" component="h1" sx={{ mb: 3, textAlign: 'center' }}>
           ログイン
         </Typography>
-        <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <Box
+          // component="form"
+          // onSubmit={handleSubmit(onSubmit)}
+          sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
+        >
           <TextField
             label="メールアドレス"
             type="email"
-            value={email}
-            onChange={handleEmailChange}
-            required
+            {...register('email')}
+            error={!!errors.email}
+            helperText={errors.email?.message}
             fullWidth
             autoComplete="email"
           />
           <TextField
             label="パスワード"
             type="password"
-            value={password}
-            onChange={handlePasswordChange}
-            required
+            {...register('password')}
+            error={!!errors.password}
+            helperText={errors.password?.message}
             fullWidth
             autoComplete="current-password"
           />
-          <Button name="ログイン" type="submit" variant="contained" fullWidth />
+          <Button name="ログイン" type="submit" variant="contained" fullWidth onClick={onClick} />
         </Box>
       </Paper>
     </Box>

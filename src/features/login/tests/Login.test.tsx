@@ -3,6 +3,15 @@ import { render, screen } from '@testing-library/react';
 import { MuiProvider } from '@/components';
 import { Login } from '../index';
 
+const mockPush = jest.fn();
+
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: mockPush,
+  }),
+  useServerInsertedHTML: () => {},
+}));
+
 const renderLogin = () => {
   return render(
     <MuiProvider>
