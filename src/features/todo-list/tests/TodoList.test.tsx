@@ -2,14 +2,27 @@ import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MuiProvider } from '@/components';
+import type { Todo } from '@/types';
 import { TodoList } from '../index';
 
-const renderTodoList = () => {
-  return render(
+const initialTodos: Todo[] = [
+  { id: '1', title: '要件定義' },
+  { id: '2', title: '基本設計' },
+  { id: '3', title: '詳細設計' },
+  { id: '4', title: '開発' },
+  { id: '5', title: 'テスト' },
+];
+
+const renderTodoList = (todos: Todo[] = initialTodos) => {
+  const onDelete = jest.fn();
+
+  const result = render(
     <MuiProvider>
-      <TodoList />
+      <TodoList todos={todos} onDelete={onDelete} />
     </MuiProvider>,
   );
+
+  return { ...result, onDelete };
 };
 
 describe('TodoList コンポーネントのテスト', () => {
@@ -33,13 +46,12 @@ describe('TodoList コンポーネントのテスト', () => {
     expect(screen.getByRole('button', { name: 'テストを削除' })).toBeInTheDocument();
   });
 
-  test('削除ボタンでTODOを削除できること', async () => {
+  test('削除ボタンでonDeleteが呼ばれること', async () => {
     const user = userEvent.setup();
-    renderTodoList();
+    const { onDelete } = renderTodoList();
 
     await user.click(screen.getByRole('button', { name: 'テストを削除' }));
 
-    expect(screen.queryByText('テスト')).not.toBeInTheDocument();
-    expect(screen.getByText('開発')).toBeInTheDocument();
+    expect(onDelete).toHaveBeenCalledWith('5');
   });
 });

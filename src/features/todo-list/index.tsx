@@ -3,9 +3,8 @@
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { Box, IconButton, List, ListItem, ListItemText, Paper, type SxProps, Typography } from '@mui/material';
-import { useState } from 'react';
+import type { Todo } from '@/types';
 import { theme } from '../../../theme';
-import type { Todo } from './types';
 
 const boxProps: SxProps = {
   display: 'flex',
@@ -16,21 +15,16 @@ const boxProps: SxProps = {
   py: 4,
 };
 
-const initialTodos: Todo[] = [
-  { id: '1', title: '要件定義' },
-  { id: '2', title: '基本設計' },
-  { id: '3', title: '詳細設計' },
-  { id: '4', title: '開発' },
-  { id: '5', title: 'テスト' },
-];
+type Props = {
+  todos: Todo[];
+  onDelete: (id: string) => void;
+};
 
-export const TodoList = () => {
-  const [todos, setTodos] = useState<Todo[]>(initialTodos);
-
+export const TodoList = ({ todos, onDelete }: Props) => {
   const handleEdit = (_id: string) => {};
 
   const handleDelete = (id: string) => {
-    setTodos((prev) => prev.filter((todo) => todo.id !== id));
+    onDelete(id);
   };
 
   return (
