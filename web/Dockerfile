@@ -38,4 +38,3 @@ USER nextjs
 EXPOSE 3000
 ENV PORT=3000
 CMD ["node", "server.js"]
-# TODO ECSでの環境変数の切り替え問題

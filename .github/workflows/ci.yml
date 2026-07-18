@@ -13,12 +13,6 @@ jobs:
         runs-on: ubuntu-latest
         timeout-minutes: 10
         steps:
-            # devへの直プッシュを禁止（githubの無料プランでは設定できなかったため）
-            # - name: Block direct push to develop
-            #   if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
-            #   run: |
-            #     echo "developブランチへの直プッシュはNG"
-            #     exit 1
             # コードのチェックアウト
             - name: Checkout code
               uses: actions/checkout@v6
@@ -28,12 +22,16 @@ jobs:
               with:
                 node-version: "22" # Dockerfileと合わせる
                 cache: "npm" # 毎回npm ciしないようにキャッシュ
+                cache-dependency-path: web/package-lock.json
             # node_modulesのインストール
             - name: Run npm ci
+              working-directory: web
               run: npm ci
             # Jestの実行  
             - name: Run Test
+              working-directory: web
               run: npm test
             # Build
             - name: Run Build
+              working-directory: web
               run: npm run build
