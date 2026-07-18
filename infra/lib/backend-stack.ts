@@ -7,7 +7,7 @@ import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as cdk from 'aws-cdk-lib/core';
 import type { Construct } from 'constructs';
 
-const lambdaPath = path.join(__dirname, '../../lambda/todos');
+const todosPath = path.join(__dirname, '../../backend/todos');
 
 export class BackendStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -22,13 +22,13 @@ export class BackendStack extends cdk.Stack {
     });
 
     const todosLambda = new NodejsFunction(this, 'TodosHandler', {
-      entry: path.join(lambdaPath, 'index.ts'),
+      entry: path.join(todosPath, 'index.ts'),
       functionName: 'todos-function',
-      projectRoot: lambdaPath,
+      projectRoot: todosPath,
       handler: 'handler',
       runtime: Runtime.NODEJS_24_X,
       environment: { TABLE_NAME: todosTable.tableName },
-      depsLockFilePath: path.join(lambdaPath, 'package-lock.json'), // デフォルトで/infra配下のlockファイル(依存関係)を参照する為、別明示的に/lambda側のlockファイルを参照させる
+      depsLockFilePath: path.join(todosPath, 'package-lock.json'), // デフォルトで/infra配下のlockファイル(依存関係)を参照する為、別明示的に/backend/todos側のlockファイルを参照させる
     });
 
     // dynamodb読み取り権限をLambdaに付与

@@ -1,10 +1,14 @@
-name: CI (Test, Build)
+name: WEB CI (Test, Build)
 
 on:
   push:
     branches: [ "develop" ]
+    paths:
+      - web/**
   pull_request:
     branches: [ "develop" ]
+    paths:
+      - web/**
 
 
 jobs:
