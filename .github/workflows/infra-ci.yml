@@ -1,0 +1,51 @@
+name: INFRA CI (Test, Build, Synth)
+
+on:
+  push:
+    branches: ['develop']
+    paths:
+      - infra/**
+      - backend/**
+  pull_request:
+    branches: ['develop']
+    paths:
+      - infra/**
+      - backend/**
+
+jobs:
+  infra-test-and-build:
+    name: INFRA - Test, Build, Synth
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      # コードのチェックアウト
+      - name: Checkout code
+        uses: actions/checkout@v6
+      # NodeJsのセットアップ
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: | 
+            infra/package-lock.json
+            backend/todos/package-lock.json
+      # node_modulesのインストール
+      - name: Run npm ci in infra
+        working-directory: infra
+        run: npm ci
+      - name: Run npm ci in backend
+        working-directory: backend/todos
+        run: npm ci
+      # Jestの実行
+      - name: Run Test
+        working-directory: infra
+        run: npm test
+      # Build
+      - name: Run Build
+        working-directory: infra
+        run: npm run build
+      # cdk コードのチェック
+      - name: Check CDK Code
+        working-directory: infra
+        run: npm run cdk -- synth

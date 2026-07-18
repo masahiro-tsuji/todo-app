@@ -1,43 +1,13 @@
 {
-  "name": "todo-app",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "biome check",
-    "format": "biome format --write",
-    "test": "jest",
-    "test:watch": "jest --watch"
-  },
-  "dependencies": {
-    "@emotion/cache": "^11.14.0",
-    "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.1",
-    "@hookform/resolvers": "^5.4.0",
-    "@mui/icons-material": "^9.1.1",
-    "@mui/material": "^9.1.2",
-    "@mui/material-nextjs": "^9.1.1",
-    "@tanstack/react-query": "^5.101.2",
-    "next": "16.2.9",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
-    "react-hook-form": "^7.81.0",
-    "zod": "^4.4.3"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "2.2.0",
-    "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^16.3.2",
-    "@testing-library/user-event": "^14.6.1",
-    "@types/jest": "^30.0.0",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "babel-plugin-react-compiler": "1.0.0",
-    "jest": "^30.4.2",
-    "jest-environment-jsdom": "^30.4.1",
-    "typescript": "^5"
-  }
+	"name": "todo-app",
+	"version": "0.1.0",
+	"private": true,
+	"scripts": {
+		"dev:web": "npm run dev --prefix web",
+		"build:web": "npm run build --prefix web",
+		"build:infra": "npm run build --prefix infra",
+		"test:web": "npm run test --prefix web",
+		"lint:web": "npm run lint --prefix web",
+		"test:infra": "npm run test --prefix infra"
+	}
 }

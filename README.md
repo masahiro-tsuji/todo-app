@@ -1,8 +1,33 @@
+# プロジェクト構成
+
+- `web/` - Next.js フロントエンド
+- `backend/` - バックエンド（Lambda ハンドラ等）
+- `infra/` - AWS CDK インフラ
+
+# ローカル開発（Docker なし）
+
+ルートから実行する場合:
+
+```cli
+npm run dev:web
+```
+
+各パッケージで実行する場合:
+
+```cli
+cd web
+npm ci
+npm run dev
+```
+
 # Docker の起動方法
+
+`web/` ディレクトリで実行してください。
 
 ## 開発環境の起動
 
 ```cli
+cd web
 docker compose up dev --build
 ```
 
@@ -11,19 +36,22 @@ docker compose up dev --build
 ## 本番環境の起動
 
 ```cli
+cd web
 docker compose up prod --build
 ```
 
 ## コンテナの停止
 
 ```cli
+cd web
 docker compose down
 ```
 
 ライブラリ更新後は下記コマンドで停止
 
-```cii
- docker compose down -v
+```cli
+cd web
+docker compose down -v
 ```
 
 ## 参考資料
