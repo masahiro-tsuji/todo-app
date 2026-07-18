@@ -1,10 +1,18 @@
 # プロジェクト構成
 
 - `web/` - Next.js フロントエンド
+- `backend/` - バックエンド（Lambda ハンドラ等）
 - `infra/` - AWS CDK インフラ
-- `lambda/` - バックエンド Lambda
 
 # ローカル開発（Docker なし）
+
+ルートから実行する場合:
+
+```cli
+npm run dev:web
+```
+
+各パッケージで実行する場合:
 
 ```cli
 cd web
