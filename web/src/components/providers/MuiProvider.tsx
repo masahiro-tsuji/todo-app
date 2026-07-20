@@ -1,9 +1,8 @@
 'use client';
 import { ThemeProvider } from '@mui/material';
-import { theme } from '@/../theme';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v16-appRouter';
-
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
+import { theme } from '@/../theme';
 
 export const MuiProvider = ({ children }: { children: ReactNode }) => {
   return (
