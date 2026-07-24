@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom'; // 便利なマッチャー（toBeInTheDocumentなど）を使うため
 import { Button } from './Button';

@@ -1,10 +1,12 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import type { APIGatewayProxyEventV2 } from 'aws-lambda';
+import { ErrorMessages } from './constants';
 import { createTodo } from './handlers/createTodo';
+import { createErrorJsonLog, createErrorResponse } from './libs';
+import { HttpStatus } from './types';
 
 const client = new DynamoDBClient({});
-
 const docClient = DynamoDBDocumentClient.from(client);
 
 export const handler = async (event: APIGatewayProxyEventV2) => {
@@ -13,17 +15,15 @@ export const handler = async (event: APIGatewayProxyEventV2) => {
 
   try {
     if (method === 'POST' && path === '/todos') return createTodo(docClient, event);
-    return {
-      statusCode: 404,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'Not Found' }),
-    };
-  } catch (error) {
-    console.error('Error:', error);
-    return {
-      statusCode: 500,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'Internal Server Error' }),
-    };
+    return createErrorResponse(HttpStatus.NOT_FOUND, ErrorMessages.NOT_FOUND);
+  } catch (error: unknown) {
+    const errorLog = createErrorJsonLog({
+      requestId: event.requestContext.requestId,
+      message: ErrorMessages.INTERNAL_SERVER_ERROR.error,
+      userId: 'demo-user', // TODO: Cognito 後に JWT の sub に差し替え
+      error: error instanceof Error ? { message: error.message, stack: error.stack } : error,
+    });
+    console.error(errorLog);
+    return createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, ErrorMessages.INTERNAL_SERVER_ERROR);
   }
 };

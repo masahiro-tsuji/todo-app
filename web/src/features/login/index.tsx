@@ -20,7 +20,6 @@ export const Login = () => {
   const router = useRouter();
   const {
     register,
-    handleSubmit,
     formState: { errors },
   } = useForm<LoginForm>({
     mode: 'all',

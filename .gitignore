@@ -25,5 +25,6 @@ coverage/
 # OSやエディタの一時ファイル
 .DS_Store
 *.local
-.vscode/
+.vscode/*
+!.vscode/settings.json
 .idea/

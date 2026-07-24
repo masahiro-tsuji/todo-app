@@ -1,16 +1,6 @@
-import { PaletteColor, PaletteColorOptions, createTheme } from '@mui/material';
-import {
-  blue,
-  cyan,
-  green,
-  grey,
-  lightBlue,
-  orange,
-  pink,
-  red,
-  yellow,
-} from '@mui/material/colors';
-import React from 'react';
+import { createTheme, type PaletteColor, type PaletteColorOptions } from '@mui/material';
+import { blue, cyan, green, grey, red, yellow } from '@mui/material/colors';
+import type React from 'react';
 
 const DEFAULT_FONT_SIZE = 14;
 

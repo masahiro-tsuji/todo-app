@@ -31,7 +31,11 @@ jobs:
             - name: Run npm ci
               working-directory: web
               run: npm ci
-            # Jestの実行  
+            # Biome
+            - name: Run Lint
+              working-directory: web
+              run: npm run lint
+            # Jestの実行
             - name: Run Test
               working-directory: web
               run: npm test
