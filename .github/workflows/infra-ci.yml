@@ -37,9 +37,16 @@ jobs:
       - name: Run npm ci in backend
         working-directory: backend/todos
         run: npm ci
+      # backendのBiome実行
+      - name: Run Lint
+        working-directory: backend/todos
+        run: npm run lint
       # Jestの実行
-      - name: Run Test
+      - name: Run Infra Test
         working-directory: infra
+        run: npm test
+      - name: Run Backend Test
+        working-directory: backend/todos
         run: npm test
       # Build
       - name: Run Build
