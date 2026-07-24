@@ -52,7 +52,7 @@ jobs:
       - name: Run Build
         working-directory: infra
         run: npm run build
-      # cdk コードのチェック
+      # TS型チェック→CloudFormationテンプレートの生成
       - name: Check CDK Code
         working-directory: infra
         run: npm run cdk -- synth
