@@ -9,7 +9,7 @@ import * as logs from 'aws-cdk-lib/aws-logs';
 import type { Construct } from 'constructs';
 
 const todosPath = path.join(__dirname, '../../backend/todos');
-const TODOS_LAMBDA_NAME = 'todos-function';
+export const TODOS_LAMBDA_NAME = 'todos-function';
 
 export class BackendStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -20,7 +20,7 @@ export class BackendStack extends cdk.Stack {
       tableName: 'todos',
       partitionKey: { name: 'userId', type: dynamodb.AttributeType.STRING },
       sortKey: { name: 'todoId', type: dynamodb.AttributeType.STRING },
-      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST, // 読み書きスループットの課金方法 (従量課金)
       removalPolicy: cdk.RemovalPolicy.DESTROY, // スタック削除時にテーブルも消える
     });
 
@@ -39,7 +39,7 @@ export class BackendStack extends cdk.Stack {
       handler: 'handler',
       runtime: Runtime.NODEJS_24_X,
       environment: { TABLE_NAME: todosTable.tableName },
-      depsLockFilePath: path.join(todosPath, 'package-lock.json'), // デフォルトで/infra配下のlockファイル(依存関係)を参照する為、別明示的に/backend/todos側のlockファイルを参照させる
+      depsLockFilePath: path.join(todosPath, 'package-lock.json'), // デフォルトで/infra配下のlockファイル(依存関係)を参照する為、明示的に/backend/todos側のlockファイルを参照させる
       logGroup: todosLambdaLogGroup,
     });
 
@@ -59,9 +59,12 @@ export class BackendStack extends cdk.Stack {
         ],
       },
     });
-
-    httpApi.addRoutes({ methods: [apigatewayv2.HttpMethod.POST], path: '/todos', integration: todosIntegration });
-
     new cdk.CfnOutput(this, 'ApiUrl', { value: httpApi.url ?? '', description: 'TODO API の URL' });
+
+    httpApi.addRoutes({
+      methods: [apigatewayv2.HttpMethod.GET, apigatewayv2.HttpMethod.POST],
+      path: '/todos',
+      integration: todosIntegration,
+    });
   }
 }

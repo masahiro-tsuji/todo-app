@@ -1,7 +1,7 @@
 import type { APIGatewayProxyEventV2 } from 'aws-lambda';
-import { ErrorMessages } from '../constants';
-import { type CreateTodoRequestBody, HttpStatus } from '../types';
-import { createTodo } from './createTodo';
+import { ErrorMessages } from '../../constants';
+import { type CreateTodoRequestBody, HttpStatus } from '../../types';
+import { createTodo } from '../createTodo';
 
 const mockSend = jest.fn();
 const mockClient = { send: mockSend } as never;
