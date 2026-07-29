@@ -44,6 +44,23 @@ cdk deploy BackendStack
 curl -X POST "https://xxxxxx.execute-api.ap-northeast-1.amazonaws.com/xxx" -H "Content-Type: application/json"
 ```
 
+## テストについて
+
+### テスト項目の記述について
+
+`cdk.out/BackendStack.template.json`を元に記述する
+
+### 実行手順
+
+1. `npm test`
+2. `snapshot fail` したら `diff` を確認
+3. `npm test -- -u` → `npm test`
+4. PRに `.snap`を含める
+
+### `npm test -- -u` について
+
+- LogGroupやルートの追加、Lambdaの設定、CDKのバージョンアップをした場合必要になる
+
 ## エラーの対処
 
 ### --app is required either in command-line, in cdk.json or in ~/.cdk.json
