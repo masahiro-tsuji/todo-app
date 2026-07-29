@@ -8,13 +8,13 @@
 
 ルートから実行する場合:
 
-```cli
+```bash
 npm run dev:web
 ```
 
 各パッケージで実行する場合:
 
-```cli
+```bash
 cd web
 npm ci
 npm run dev
@@ -26,7 +26,7 @@ npm run dev
 
 ## 開発環境の起動
 
-```cli
+```bash
 cd web
 docker compose up dev --build
 ```
@@ -35,21 +35,21 @@ docker compose up dev --build
 
 ## 本番環境の起動
 
-```cli
+```bash
 cd web
 docker compose up prod --build
 ```
 
 ## コンテナの停止
 
-```cli
+```bash
 cd web
 docker compose down
 ```
 
 ライブラリ更新後は下記コマンドで停止
 
-```cli
+```bash
 cd web
 docker compose down -v
 ```
