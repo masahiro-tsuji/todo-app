@@ -41,6 +41,10 @@ jobs:
       - name: Run Lint
         working-directory: backend/todos
         run: npm run lint
+        # Build
+      - name: Run Build
+        working-directory: infra
+        run: npm run build
       # Jestの実行
       - name: Run Infra Test
         working-directory: infra
@@ -48,10 +52,6 @@ jobs:
       - name: Run Backend Test
         working-directory: backend/todos
         run: npm test
-      # Build
-      - name: Run Build
-        working-directory: infra
-        run: npm run build
       # TS型チェック→CloudFormationテンプレートの生成
       - name: Check CDK Code
         working-directory: infra
