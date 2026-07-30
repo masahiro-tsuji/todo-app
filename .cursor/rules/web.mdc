@@ -23,6 +23,14 @@ This version has breaking changes — APIs, conventions, and file structure may 
 ```text
 web/
 └─ src/
+   └─api/
+   |   └─axios.ts # axiosの共通設定ファイル
+   |   └─ [機能名].ts/
+   |   |   └─ get(create,delete,updateなど)〇〇.ts # axios.ts の axiosClient を使ってAPI接続する
+   |   |   └─ index.ts # ディレクトリ内のexportをまとめる
+   |   └─ types/ # apiディレクトリ内で使用する共通の型定義を格納する
+   |       └─ [型名].ts
+   |       └─ index.ts # type/ 内の各ファイルの export をまとめる
    └─ components/  # 共通コンポーネントをまとめるディレクトリ
    |   └─ [ComponentName].tsx # MUI でカスタムした共通コンポーネント
    |   └─ index.ts  # 共通コンポーネントの export をまとめる
@@ -43,6 +51,9 @@ web/
    │   ├─ use〇〇.ts  # 複数箇所で使用するカスタムhookファイル
    │   ├─ use△△.ts
    │   └─ index.ts  # hooks内の export をまとめる
+   └─ constants/ # プロジェクト全体で使用する定数をまとめるディレクトリ
+   │   ├─ 〇〇.ts  # 各定数は役割ごとに個別のファイル（`queryKey.ts` など）として作成
+   │   └─ index.ts  # constants内の export をまとめる
    └─ utils/ # 共通で使用する関数をまとめるディレクトリ
    │   ├─ 〇〇.ts  # 各関数は役割ごとに個別のファイル（`〇〇.ts`）として作成
    │   ├─ △△.ts
@@ -52,6 +63,17 @@ web/
        ├─ △△.ts
        └─ index.ts  # types内の export をまとめる
 ```
+
+### `web/src/api/`
+
+#### [機能名].ts
+
+- `axios.ts`の`axiosClient`を使用して、API接続を行うこと
+- 1ファイルにつき、1つのエンドポイントの処理を実装すること(1ファイルに2つ以上のエンドポイントの実装を禁止する)
+
+#### types/[型名].ts
+
+- `api`ディレクトリ内で使用する共通の型定義を記述すること
 
 ### `web/src/components/`
 
@@ -95,6 +117,13 @@ web/
 
 - プロジェクト全体で使用する`hooks`を定義すること
 
+### `web/src/constants/`
+
+- プロジェクト全体で使用する定数を定義すること
+- React Query のクエリキーは `queryKey.ts` に記述すること
+- 各定数は役割ごとに個別のファイル（`queryKey.ts` など）とすること
+- 外部（`web/src` 配下など）から利用する定数は、必ず `index.ts` を経由してエクスポート（バレルファイル運用）すること
+
 ### `web/src/utils/`
 
 - プロジェクト全体で使用する関数を定義すること
@@ -103,7 +132,7 @@ web/
 
 ### `web/src/types/`
 
-- プロジェクト全体で使用する型定義を格納すること
+- api/ ディレクトリ以外で使用する型定義を格納すること
 
 ## コーディング規約
 

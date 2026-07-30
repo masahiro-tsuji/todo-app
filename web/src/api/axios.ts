@@ -4,10 +4,8 @@ import axios, { type AxiosError, type AxiosInstance, type AxiosRequestConfig, ty
 class AxiosClient {
   private axiosInstance: AxiosInstance;
 
-  constructor(baseURL = `${process.env.REACT_APP_BASE_URL}`) {
-    this.axiosInstance = axios.create({
-      baseURL,
-    });
+  constructor(baseURL = `${process.env.NEXT_PUBLIC_BASE_URL}`) {
+    this.axiosInstance = axios.create({ baseURL });
     this.axiosInstance.interceptors.response.use(
       (response) => {
         return Promise.resolve(response);
@@ -41,11 +39,11 @@ class AxiosClient {
     config?: AxiosRequestConfig<D>,
   ): Promise<R> {
     const customConfig = this.setHeader(config);
-    return await this.axiosInstance.post(url, data, customConfig);
+    return await this.axiosInstance.put(url, data, customConfig);
   }
   public async delete<T = any, R = AxiosResponse<T>, D = any>(url: string, config?: AxiosRequestConfig<D>): Promise<R> {
     const customConfig = this.setHeader(config);
-    return await this.axiosInstance.post(url, customConfig);
+    return await this.axiosInstance.delete(url, customConfig);
   }
 }
 
