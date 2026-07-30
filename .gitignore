@@ -10,6 +10,7 @@ node_modules/
 # Next.js ビルド成果物（web/）
 .next/
 out/
+web/next-env.d.ts
 
 # Jest / SWC キャッシュ
 coverage/
@@ -28,3 +29,4 @@ coverage/
 .vscode/*
 !.vscode/settings.json
 .idea/
+
