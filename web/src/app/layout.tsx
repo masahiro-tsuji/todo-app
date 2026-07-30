@@ -1,10 +1,12 @@
-import { MuiProvider } from '@/components';
+import { MuiProvider, QueryProvider } from '@/components';
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ja">
       <body>
-        <MuiProvider>{children}</MuiProvider>
+        <QueryProvider>
+          <MuiProvider>{children}</MuiProvider>
+        </QueryProvider>
       </body>
     </html>
   );
