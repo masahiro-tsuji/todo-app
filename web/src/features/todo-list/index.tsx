@@ -3,31 +3,30 @@
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { Box, IconButton, List, ListItem, ListItemText } from '@mui/material';
-import type { Todo } from '@/types';
+import { useGetTodos } from '@/hooks';
 
-type Props = {
-  todos: Todo[];
-  onDelete: (id: string) => void;
-};
+type Props = { onDelete: (todoId: string) => void };
 
-export const TodoList = ({ todos, onDelete }: Props) => {
+export const TodoList = ({ onDelete }: Props) => {
+  const { data: todos } = useGetTodos();
+
   const handleEdit = (_id: string) => {};
 
-  const handleDelete = (id: string) => {
-    onDelete(id);
+  const handleDelete = (todoId: string) => {
+    onDelete(todoId);
   };
 
   return (
     <List>
       {todos.map((todo) => (
         <ListItem
-          key={todo.id}
+          key={todo.todoId}
           secondaryAction={
             <Box sx={{ display: 'flex', gap: 0.5 }}>
-              <IconButton aria-label={`${todo.title}を編集`} onClick={() => handleEdit(todo.id)} size="small">
+              <IconButton aria-label={`${todo.title}を編集`} onClick={() => handleEdit(todo.todoId)} size="small">
                 <EditIcon />
               </IconButton>
-              <IconButton aria-label={`${todo.title}を削除`} onClick={() => handleDelete(todo.id)} size="small">
+              <IconButton aria-label={`${todo.title}を削除`} onClick={() => handleDelete(todo.todoId)} size="small">
                 <DeleteIcon />
               </IconButton>
             </Box>

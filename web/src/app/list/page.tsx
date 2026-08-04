@@ -1,10 +1,10 @@
 'use client';
 
 import { Box, Paper, type SxProps, Typography } from '@mui/material';
-import { useState } from 'react';
+import { Suspense } from 'react';
+import { LoadingIndicator } from '@/components';
 import { CreateTodo } from '@/features/create-todo';
 import { TodoList } from '@/features/todo-list';
-import type { Todo } from '@/types';
 
 const boxProps: SxProps = {
   display: 'flex',
@@ -12,24 +12,11 @@ const boxProps: SxProps = {
   alignItems: 'flex-start',
   py: 4,
 };
-const initialTodos: Todo[] = [
-  { id: '1', title: '要件定義' },
-  { id: '2', title: '基本設計' },
-  { id: '3', title: '詳細設計' },
-  { id: '4', title: '開発' },
-  { id: '5', title: 'テスト' },
-];
 
 export default function ListPage() {
-  const [todos, setTodos] = useState<Todo[]>(initialTodos);
+  const handleAdd = (title: string) => {};
 
-  const handleAdd = (title: string) => {
-    setTodos((prev) => [...prev, { id: crypto.randomUUID(), title }]);
-  };
-
-  const handleDelete = (id: string) => {
-    setTodos((prev) => prev.filter((todo) => todo.id !== id));
-  };
+  const handleDelete = (id: string) => {};
 
   return (
     <Box sx={boxProps}>
@@ -40,7 +27,9 @@ export default function ListPage() {
         <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
           <CreateTodo onAdd={handleAdd} />
         </Box>
-        <TodoList todos={todos} onDelete={handleDelete} />
+        <Suspense fallback={<LoadingIndicator />}>
+          <TodoList onDelete={handleDelete} />
+        </Suspense>
       </Paper>
     </Box>
   );
