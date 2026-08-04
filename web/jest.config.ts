@@ -14,7 +14,10 @@ const createJestConfig = nextJest({
 const config: Config = {
   // All imported modules in your tests should be mocked automatically
   // automock: false,
-
+  moduleNameMapper: {
+    // '@/' を '<rootDir>/src/' (または '<rootDir>/') にマッピングする
+    '^@/(.*)$': '<rootDir>/src/$1',
+  },
   // Stop running tests after `n` failures
   // bail: 0,
 
