@@ -14,8 +14,8 @@ describe('一覧取得のテスト', () => {
   test('ユーザーに紐づく一覧のみを取得すること', async () => {
     mockSend.mockReturnValue({
       Items: [
-        { userId: demoUserObj.userId, todoId: '1', title: 'A', createdAt: '2026-01-01T09:00:00.000Z' },
-        { userId: demoUserObj.userId, todoId: '2', title: 'B', createdAt: '2026-01-02T09:00:00.000Z' },
+        { userId: demoUserObj.userId, id: '1', title: 'A', createdAt: '2026-01-01T09:00:00.000Z' },
+        { userId: demoUserObj.userId, id: '2', title: 'B', createdAt: '2026-01-02T09:00:00.000Z' },
       ],
     });
     const response = await getTodos(mockClient, {} as APIGatewayProxyEventV2);
@@ -33,8 +33,8 @@ describe('一覧取得のテスト', () => {
   test('一覧を作成日の昇順で取得すること', async () => {
     mockSend.mockReturnValue({
       Items: [
-        { userId: demoUserObj.userId, todoId: '2', title: 'B', createdAt: '2026-01-02T09:00:00.000Z' },
-        { userId: demoUserObj.userId, todoId: '1', title: 'A', createdAt: '2026-01-01T09:00:00.000Z' },
+        { userId: demoUserObj.userId, id: '2', title: 'B', createdAt: '2026-01-02T09:00:00.000Z' },
+        { userId: demoUserObj.userId, id: '1', title: 'A', createdAt: '2026-01-01T09:00:00.000Z' },
       ],
     });
     const response = await getTodos(mockClient, {} as APIGatewayProxyEventV2);

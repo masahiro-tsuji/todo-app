@@ -24,7 +24,7 @@ export const createTodo = async (
   const { data } = result;
   const item = {
     userId: demoUserObj.userId,
-    todoId: crypto.randomUUID(),
+    id: crypto.randomUUID(),
     title: data.title,
     detail: data.detail,
     createdAt: new Date().toISOString(),

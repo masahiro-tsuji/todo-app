@@ -5,28 +5,28 @@ import EditIcon from '@mui/icons-material/Edit';
 import { Box, IconButton, List, ListItem, ListItemText } from '@mui/material';
 import { useGetTodos } from '@/hooks';
 
-type Props = { onDelete: (todoId: string) => void };
+type Props = { onDelete: (id: string) => void };
 
 export const TodoList = ({ onDelete }: Props) => {
   const { data: todos } = useGetTodos();
 
   const handleEdit = (_id: string) => {};
 
-  const handleDelete = (todoId: string) => {
-    onDelete(todoId);
+  const handleDelete = (id: string) => {
+    onDelete(id);
   };
 
   return (
     <List>
       {todos.map((todo) => (
         <ListItem
-          key={todo.todoId}
+          key={todo.id}
           secondaryAction={
             <Box sx={{ display: 'flex', gap: 0.5 }}>
-              <IconButton aria-label={`${todo.title}を編集`} onClick={() => handleEdit(todo.todoId)} size="small">
+              <IconButton aria-label={`${todo.title}を編集`} onClick={() => handleEdit(todo.id)} size="small">
                 <EditIcon />
               </IconButton>
-              <IconButton aria-label={`${todo.title}を削除`} onClick={() => handleDelete(todo.todoId)} size="small">
+              <IconButton aria-label={`${todo.title}を削除`} onClick={() => handleDelete(todo.id)} size="small">
                 <DeleteIcon />
               </IconButton>
             </Box>

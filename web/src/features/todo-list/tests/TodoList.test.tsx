@@ -7,9 +7,7 @@ import { TodoList } from '../index';
 
 const mockTodos = Array(5)
   .fill(0)
-  .map((_, i) => {
-    return { id: i, title: `タイトル${i}`, detail: `詳細${i}` };
-  });
+  .map((_, i) => ({ id: String(i), title: `タイトル${i}`, detail: `詳細${i}` }));
 
 jest.mock('@/hooks/useGetTodos', () => ({
   useGetTodos: () => ({ data: mockTodos }),
@@ -52,12 +50,13 @@ describe('TodoList コンポーネントのテスト', () => {
     });
   });
 
-  test.skip('削除ボタンでonDeleteが呼ばれること', async () => {
+  test('削除ボタンでonDeleteが呼ばれること', async () => {
     const user = userEvent.setup();
     const { onDelete } = renderTodoList();
+    const target = mockTodos[4];
 
-    await user.click(screen.getByRole('button', { name: 'テストを削除' }));
+    await user.click(screen.getByRole('button', { name: `${target.title}を削除` }));
 
-    expect(onDelete).toHaveBeenCalledWith('5');
+    expect(onDelete).toHaveBeenCalledWith(target.id);
   });
 });

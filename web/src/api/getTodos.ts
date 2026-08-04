@@ -2,7 +2,7 @@ import { axiosClient } from './axios';
 
 export type Todo = {
   userId: string;
-  todoId: string;
+  id: string;
   title: string;
   createdAt: string;
   detail?: string;
