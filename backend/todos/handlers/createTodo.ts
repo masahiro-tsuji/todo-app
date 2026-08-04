@@ -26,7 +26,7 @@ export const createTodo = async (
     userId: demoUserObj.userId,
     todoId: crypto.randomUUID(),
     title: data.title,
-    description: data.description,
+    detail: data.detail,
     createdAt: new Date().toISOString(),
   };
   const params = { TableName: process.env.TABLE_NAME, Item: item };

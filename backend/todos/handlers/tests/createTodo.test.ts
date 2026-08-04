@@ -20,12 +20,13 @@ describe('todo作成APIのテスト', () => {
   });
 
   test('パラメーターが正常な場合、作成に成功すること', async () => {
-    const body: CreateTodoRequestBody = { title: 'テスト', description: '説明テスト' };
+    const body: CreateTodoRequestBody = { title: 'テスト', detail: '説明テスト' };
     const jsonBody = JSON.stringify(body);
     const res = await createTodo(mockClient, { ...baseEvent, body: jsonBody });
     const resBody = JSON.parse(res.body ?? '');
     expect(res.statusCode).toBe(HttpStatus.CREATED);
     expect(resBody.title).toBe('テスト');
+    expect(resBody.detail).toBe('説明テスト');
     expect(mockSend).toHaveBeenCalledTimes(1);
   });
 
