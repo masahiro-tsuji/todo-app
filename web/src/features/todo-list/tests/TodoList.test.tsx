@@ -2,14 +2,18 @@ import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MuiProvider } from '@/components';
+import { formatToYYYYMMDDHHmm } from '@/utils';
 
 import { TodoList } from '../index';
 
 const mockTodos = Array(5)
   .fill(0)
-  .map((_, i) => {
-    return { id: i, title: `タイトル${i}`, detail: `詳細${i}` };
-  });
+  .map((_, i) => ({
+    id: String(i),
+    title: `タイトル${i}`,
+    detail: `詳細${i}`,
+    createdAt: `2026-01-0${i + 1}T10:00:00.000Z`,
+  }));
 
 jest.mock('@/hooks/useGetTodos', () => ({
   useGetTodos: () => ({ data: mockTodos }),
@@ -42,6 +46,13 @@ describe('TodoList コンポーネントのテスト', () => {
     });
   });
 
+  test('作成日が表示されること', () => {
+    renderTodoList();
+    mockTodos.forEach((element) => {
+      expect(screen.getByText(formatToYYYYMMDDHHmm(element.createdAt))).toBeInTheDocument();
+    });
+  });
+
   test('各TODOに編集・削除ボタンが表示されること', () => {
     renderTodoList();
     mockTodos.forEach((element) => {
@@ -52,12 +63,13 @@ describe('TodoList コンポーネントのテスト', () => {
     });
   });
 
-  test.skip('削除ボタンでonDeleteが呼ばれること', async () => {
+  test('削除ボタンでonDeleteが呼ばれること', async () => {
     const user = userEvent.setup();
     const { onDelete } = renderTodoList();
+    const target = mockTodos[4];
 
-    await user.click(screen.getByRole('button', { name: 'テストを削除' }));
+    await user.click(screen.getByRole('button', { name: `${target.title}を削除` }));
 
-    expect(onDelete).toHaveBeenCalledWith('5');
+    expect(onDelete).toHaveBeenCalledWith(target.id);
   });
 });

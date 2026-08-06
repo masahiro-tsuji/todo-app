@@ -23,12 +23,12 @@ describe('DynamoDBの設定について', () => {
     const template = getTemplate();
     template.hasResourceProperties('AWS::DynamoDB::Table', { TableName: 'todos' });
   });
-  test('パーティションキーが「userId」,ソートキーが「todoId」であること', () => {
+  test('パーティションキーが「userId」,ソートキーが「id」であること', () => {
     const template = getTemplate();
     template.hasResourceProperties('AWS::DynamoDB::Table', {
       KeySchema: [
         { AttributeName: 'userId', KeyType: 'HASH' },
-        { AttributeName: 'todoId', KeyType: 'RANGE' },
+        { AttributeName: 'id', KeyType: 'RANGE' },
       ],
     });
   });

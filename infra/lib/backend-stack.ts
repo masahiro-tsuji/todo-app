@@ -19,7 +19,7 @@ export class BackendStack extends cdk.Stack {
     const todosTable = new dynamodb.Table(this, 'TodosTable', {
       tableName: 'todos',
       partitionKey: { name: 'userId', type: dynamodb.AttributeType.STRING },
-      sortKey: { name: 'todoId', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'id', type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST, // 読み書きスループットの課金方法 (従量課金)
       removalPolicy: cdk.RemovalPolicy.DESTROY, // スタック削除時にテーブルも消える
     });
@@ -50,6 +50,7 @@ export class BackendStack extends cdk.Stack {
     const todosIntegration = new HttpLambdaIntegration('todosIntegration', todosLambda);
     const httpApi = new apigatewayv2.HttpApi(this, 'TodoApi', {
       corsPreflight: {
+        allowHeaders: ['Content-Type'], // ← がないとCORSの制限に引っかかる（フロント側で「Content-Type: application/json」としてるため）
         allowOrigins: ['*'],
         allowMethods: [
           apigatewayv2.CorsHttpMethod.GET,

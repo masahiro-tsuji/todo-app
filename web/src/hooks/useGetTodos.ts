@@ -1,16 +1,18 @@
-import { getTodos, type Todo } from '@/api/getTodos';
+import { useCallback } from 'react';
+import { getTodos } from '@/api/getTodos';
+import type { Todo } from '@/api/types/todo';
 import { todosQueryKey } from '@/constants/queryKey';
 import { useQueryWithSuspense } from './useQueries';
 
 export const useGetTodos = () => {
-  const fetchTodos = async () => {
+  const fetchTodos = useCallback(async () => {
     try {
       return await getTodos();
     } catch (e) {
       console.error(e); // TODO: エラーハンドリング
       return [];
     }
-  };
+  }, []);
 
   const { data } = useQueryWithSuspense<Todo[]>(todosQueryKey, fetchTodos);
 

@@ -1,66 +1,81 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Box, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@mui/material';
+import { TextField } from '@mui/material';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Button } from '@/components';
+import { Button, Dialog } from '@/components';
+import { useCreateTodo } from '@/hooks';
 import { type CreateTodoForm, createTodoFormSchema } from './types';
 
-type Props = {
-  onAdd: (title: string) => void;
-};
-
-export const CreateTodo = ({ onAdd }: Props) => {
+export const CreateTodo = () => {
+  const { isPendingCreateTodo, createTodo } = useCreateTodo();
   const [open, setOpen] = useState(false);
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors },
+    formState: { errors, touchedFields, isSubmitted },
   } = useForm<CreateTodoForm>({
-    mode: 'all',
+    mode: 'onBlur',
+    reValidateMode: 'onBlur',
     resolver: zodResolver(createTodoFormSchema),
-    defaultValues: { title: '' },
+    defaultValues: { title: '', detail: '' },
   });
-  const { ref, ...titleField } = register('title');
+  const { ref: titleRef, ...titleField } = register('title');
+  const { ref: detailRef, ...detailField } = register('detail');
+
+  const resetForm = () => {
+    reset(
+      { title: '', detail: '' },
+      { keepErrors: false, keepDirty: false, keepTouched: false, keepIsSubmitted: false },
+    );
+  };
 
   const handleOpen = () => {
-    reset({ title: '' });
+    resetForm();
     setOpen(true);
   };
 
   const handleClose = () => {
+    resetForm();
     setOpen(false);
   };
 
-  const onSubmit = (data: CreateTodoForm) => {
-    onAdd(data.title);
-    handleClose();
+  const onSubmit = async (data: CreateTodoForm) => {
+    const params = { title: data.title, detail: data.detail };
+    await createTodo(params, { onSuccess: () => handleClose() });
   };
 
   return (
     <>
       <Button name="登録" variant="contained" onClick={handleOpen} />
-      <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
-        <DialogTitle>TODO登録</DialogTitle>
-        <Box component="form" onSubmit={handleSubmit(onSubmit)}>
-          <DialogContent>
-            <TextField
-              {...titleField}
-              slotProps={{ htmlInput: { ref } }}
-              label="タイトル"
-              error={!!errors.title}
-              helperText={errors.title?.message}
-              fullWidth
-              autoFocus
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button name="キャンセル" type="button" onClick={handleClose} />
-            <Button name="登録" type="submit" variant="contained" />
-          </DialogActions>
-        </Box>
+      <Dialog
+        open={open}
+        title="TODO登録"
+        submitButtonName="登録"
+        onClose={handleClose}
+        onSubmit={handleSubmit(onSubmit)}
+        loading={isPendingCreateTodo}
+      >
+        <TextField
+          {...titleField}
+          slotProps={{ htmlInput: { ref: titleRef } }}
+          label="タイトル"
+          error={!!errors.title && (touchedFields.title || isSubmitted)}
+          helperText={touchedFields.title || isSubmitted ? errors.title?.message : undefined}
+          fullWidth
+        />
+        <TextField
+          {...detailField}
+          slotProps={{ htmlInput: { ref: detailRef } }}
+          label="詳細"
+          error={!!errors.detail && (touchedFields.detail || isSubmitted)}
+          helperText={touchedFields.detail || isSubmitted ? errors.detail?.message : undefined}
+          fullWidth
+          multiline
+          minRows={3}
+        />
       </Dialog>
     </>
   );
