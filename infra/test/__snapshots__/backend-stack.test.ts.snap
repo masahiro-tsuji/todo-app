@@ -38,6 +38,9 @@ exports[`BackendStackのテスト BackendStackのSnapshotテスト 1`] = `
     "TodoApi145E2E30": {
       "Properties": {
         "CorsConfiguration": {
+          "AllowHeaders": [
+            "Content-Type",
+          ],
           "AllowMethods": [
             "GET",
             "HEAD",
