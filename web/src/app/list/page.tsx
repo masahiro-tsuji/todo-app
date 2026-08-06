@@ -14,18 +14,16 @@ const boxProps: SxProps = {
 };
 
 export default function ListPage() {
-  const handleAdd = (title: string) => {};
-
-  const handleDelete = (id: string) => {};
+  const handleDelete = (_id: string) => {};
 
   return (
     <Box sx={boxProps}>
-      <Paper elevation={3} sx={{ width: '100%', maxWidth: '600px', m: 1, p: 1 }}>
+      <Paper elevation={3} sx={{ width: '100%', maxWidth: '900px', m: 1, p: 1 }}>
         <Typography variant="h1" component="h1" sx={{ textAlign: 'center' }}>
           TODO一覧
         </Typography>
         <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <CreateTodo onAdd={handleAdd} />
+          <CreateTodo />
         </Box>
         <Suspense fallback={<LoadingIndicator />}>
           <TodoList onDelete={handleDelete} />

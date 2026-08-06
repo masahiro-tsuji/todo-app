@@ -2,12 +2,18 @@ import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MuiProvider } from '@/components';
+import { formatToYYYYMMDDHHmm } from '@/utils';
 
 import { TodoList } from '../index';
 
 const mockTodos = Array(5)
   .fill(0)
-  .map((_, i) => ({ id: String(i), title: `タイトル${i}`, detail: `詳細${i}` }));
+  .map((_, i) => ({
+    id: String(i),
+    title: `タイトル${i}`,
+    detail: `詳細${i}`,
+    createdAt: `2026-01-0${i + 1}T10:00:00.000Z`,
+  }));
 
 jest.mock('@/hooks/useGetTodos', () => ({
   useGetTodos: () => ({ data: mockTodos }),
@@ -37,6 +43,13 @@ describe('TodoList コンポーネントのテスト', () => {
     renderTodoList();
     mockTodos.forEach((element) => {
       expect(screen.getByText(element.detail)).toBeInTheDocument();
+    });
+  });
+
+  test('作成日が表示されること', () => {
+    renderTodoList();
+    mockTodos.forEach((element) => {
+      expect(screen.getByText(formatToYYYYMMDDHHmm(element.createdAt))).toBeInTheDocument();
     });
   });
 
