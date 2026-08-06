@@ -50,6 +50,7 @@ export class BackendStack extends cdk.Stack {
     const todosIntegration = new HttpLambdaIntegration('todosIntegration', todosLambda);
     const httpApi = new apigatewayv2.HttpApi(this, 'TodoApi', {
       corsPreflight: {
+        allowHeaders: ['Content-Type'], // ← がないとCORSの制限に引っかかる（フロント側で「Content-Type: application/json」としてるため）
         allowOrigins: ['*'],
         allowMethods: [
           apigatewayv2.CorsHttpMethod.GET,
