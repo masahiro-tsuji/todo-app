@@ -9,7 +9,7 @@ import {
   type DialogProps as MuiDialogProps,
 } from '@mui/material';
 import { type FormEventHandler, forwardRef, type ReactNode } from 'react';
-import { Button } from '../Button';
+import { Button } from './Button';
 
 type Props = {
   open: boolean;
@@ -57,7 +57,7 @@ export const Dialog = forwardRef<HTMLDivElement, Props>(
         <DialogTitle>{title}</DialogTitle>
         <Box component="form" onSubmit={onSubmit}>
           <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>{children}</DialogContent>
-          <DialogActions sx={{ p: 1 }}>
+          <DialogActions sx={{ px: 3, pb: 3 }}>
             <Button name={cancelButtonName} type="button" onClick={onClose} />
             <Button name={submitButtonName} type="submit" variant="contained" loading={loading} />
           </DialogActions>
