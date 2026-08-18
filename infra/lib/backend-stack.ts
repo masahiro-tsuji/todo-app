@@ -57,6 +57,7 @@ export class BackendStack extends cdk.Stack {
           apigatewayv2.CorsHttpMethod.HEAD,
           apigatewayv2.CorsHttpMethod.OPTIONS,
           apigatewayv2.CorsHttpMethod.POST,
+          apigatewayv2.CorsHttpMethod.PATCH,
         ],
       },
     });
@@ -67,5 +68,6 @@ export class BackendStack extends cdk.Stack {
       path: '/todos',
       integration: todosIntegration,
     });
+    httpApi.addRoutes({ methods: [apigatewayv2.HttpMethod.PATCH], path: '/todos/{id}', integration: todosIntegration });
   }
 }

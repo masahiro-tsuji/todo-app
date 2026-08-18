@@ -16,6 +16,10 @@ export const ErrorMessages = {
     error: 'Not Found',
     detail: 'リソースが見つかりません',
   },
+  TODO_NOT_FOUND: {
+    error: 'Todo Not Found',
+    detail: '指定されたTODOは見つかりません',
+  },
   INTERNAL_SERVER_ERROR: {
     error: 'Internal Server Error',
     detail: 'サーバーエラーが発生しました',
@@ -25,3 +29,6 @@ export const ErrorMessages = {
     detail: '入力内容に誤りがあります',
   },
 } as const satisfies Record<string, ApiErrorMessage>;
+
+export const toErrorBody = (message: (typeof ErrorMessages)[keyof typeof ErrorMessages]) =>
+  JSON.stringify({ error: message.error, details: [message.detail] });

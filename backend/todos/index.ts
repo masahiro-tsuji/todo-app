@@ -4,6 +4,7 @@ import type { APIGatewayProxyEventV2 } from 'aws-lambda';
 import { demoUserObj, ErrorMessages } from './constants';
 import { createTodo } from './handlers/createTodo';
 import { getTodos } from './handlers/getTodos';
+import { updateTodo } from './handlers/updateTodo';
 import { createErrorJsonLog, createErrorResponse } from './libs';
 import { HttpStatus } from './types';
 
@@ -19,6 +20,9 @@ export const handler = async (event: APIGatewayProxyEventV2) => {
       if (method === 'GET') return await getTodos(docClient, event);
       if (method === 'POST') return await createTodo(docClient, event);
     }
+    // NOTE: /todos/{id}も合致させるため
+    if (path.startsWith('/todos/') && method === 'PATCH') return await updateTodo(docClient, event);
+
     return createErrorResponse(HttpStatus.NOT_FOUND, ErrorMessages.NOT_FOUND);
   } catch (error: unknown) {
     const errorLog = createErrorJsonLog({
