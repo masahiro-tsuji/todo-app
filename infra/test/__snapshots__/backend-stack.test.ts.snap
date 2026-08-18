@@ -46,6 +46,7 @@ exports[`BackendStackのテスト BackendStackのSnapshotテスト 1`] = `
             "HEAD",
             "OPTIONS",
             "POST",
+            "PATCH",
           ],
           "AllowOrigins": [
             "*",
@@ -140,6 +141,64 @@ exports[`BackendStackのテスト BackendStackのSnapshotテスト 1`] = `
       },
       "Type": "AWS::Lambda::Permission",
     },
+    "TodoApiPATCHtodosidD0E8FD9C": {
+      "Properties": {
+        "ApiId": {
+          "Ref": "TodoApi145E2E30",
+        },
+        "AuthorizationType": "NONE",
+        "RouteKey": "PATCH /todos/{id}",
+        "Target": {
+          "Fn::Join": [
+            "",
+            [
+              "integrations/",
+              {
+                "Ref": "TodoApiGETtodostodosIntegration0D4F3125",
+              },
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::ApiGatewayV2::Route",
+    },
+    "TodoApiPATCHtodosidtodosIntegrationPermission7BC004D1": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "TodosHandler090B72EA",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "TodoApi145E2E30",
+              },
+              "/*/*/todos/{id}",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
     "TodoApiPOSTtodosF4A1792E": {
       "Properties": {
         "ApiId": {
@@ -208,7 +267,7 @@ exports[`BackendStackのテスト BackendStackのSnapshotテスト 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "8ee2e6f8bbc78959d93a869449784112e7970a696bb827d8e5d3a11f58e4d6a5.zip",
+          "S3Key": "c017341e5cdee95e6e74fed718d95f8a17290754a5750d65ca192455342148fe.zip",
         },
         "Environment": {
           "Variables": {

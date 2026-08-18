@@ -13,23 +13,16 @@ import { HttpStatus } from './types';
 const todoHandler = async (method: 'GET' | 'POST' | 'PUT', path: string = '/todos') =>
   await handler({ rawPath: path, requestContext: { http: { method } } } as APIGatewayProxyEventV2);
 
-describe('/todos APIのルーティングテストについて', () => {
+describe('GET: /todos のルーティングテストについて', () => {
   beforeEach(() => {
     jest.mocked(getTodos).mockResolvedValue({ statusCode: HttpStatus.OK, body: '[]' });
     jest.mocked(createTodo).mockResolvedValue({ statusCode: HttpStatus.CREATED, body: '{}' });
   });
-  test('GET: /todos の時、getTodosが呼ばれること', async () => {
+  test('getTodosが呼ばれること', async () => {
     const res = await todoHandler('GET');
     expect(getTodos).toHaveBeenCalledTimes(1);
     expect(createTodo).not.toHaveBeenCalled();
     expect(res.statusCode).toBe(HttpStatus.OK);
-  });
-
-  test('POST: /todos の時、createTodosが呼ばれること', async () => {
-    const res = await todoHandler('POST');
-    expect(createTodo).toHaveBeenCalledTimes(1);
-    expect(getTodos).not.toHaveBeenCalled();
-    expect(res.statusCode).toBe(HttpStatus.CREATED);
   });
 
   test('/todo以外のパスの時、404エラーを返すこと', async () => {
@@ -38,14 +31,9 @@ describe('/todos APIのルーティングテストについて', () => {
     expect(JSON.parse(getMethodResponse.body ?? '')).toEqual(expect.objectContaining({ error: 'Not Found' }));
     expect(getMethodResponse.statusCode).toBe(HttpStatus.NOT_FOUND);
     expect(getTodos).not.toHaveBeenCalled();
-    // POSTメソッド時
-    const postMethodResponse = await todoHandler('POST', '/unknown');
-    expect(JSON.parse(postMethodResponse.body ?? '')).toEqual(expect.objectContaining({ error: 'Not Found' }));
-    expect(postMethodResponse.statusCode).toBe(HttpStatus.NOT_FOUND);
-    expect(createTodo).not.toHaveBeenCalled();
   });
 
-  test('GET: /todos で throwした時 500エラーを返すこと', async () => {
+  test('throwした時 500エラーを返すこと', async () => {
     jest.mocked(getTodos).mockRejectedValue(new Error('DB error'));
     const res = await todoHandler('GET');
     expect(res.statusCode).toBe(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -54,8 +42,30 @@ describe('/todos APIのルーティングテストについて', () => {
     );
     expect(createTodo).not.toHaveBeenCalled();
   });
+});
 
-  test('POST: /todos で throwした時 500エラーを返すこと', async () => {
+describe('POST: /todos のルーティングテストについて', () => {
+  beforeEach(() => {
+    jest.mocked(getTodos).mockResolvedValue({ statusCode: HttpStatus.OK, body: '[]' });
+    jest.mocked(createTodo).mockResolvedValue({ statusCode: HttpStatus.CREATED, body: '{}' });
+  });
+
+  test('createTodosが呼ばれること', async () => {
+    const res = await todoHandler('POST');
+    expect(createTodo).toHaveBeenCalledTimes(1);
+    expect(getTodos).not.toHaveBeenCalled();
+    expect(res.statusCode).toBe(HttpStatus.CREATED);
+  });
+
+  test('/todo以外のパスの時、404エラーを返すこと', async () => {
+    // POSTメソッド時
+    const postMethodResponse = await todoHandler('POST', '/unknown');
+    expect(JSON.parse(postMethodResponse.body ?? '')).toEqual(expect.objectContaining({ error: 'Not Found' }));
+    expect(postMethodResponse.statusCode).toBe(HttpStatus.NOT_FOUND);
+    expect(createTodo).not.toHaveBeenCalled();
+  });
+
+  test('throwした時 500エラーを返すこと', async () => {
     jest.mocked(createTodo).mockRejectedValue(new Error('DB error'));
     const res = await todoHandler('POST');
     expect(res.statusCode).toBe(HttpStatus.INTERNAL_SERVER_ERROR);

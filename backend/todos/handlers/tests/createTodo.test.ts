@@ -1,5 +1,5 @@
 import type { APIGatewayProxyEventV2 } from 'aws-lambda';
-import { ErrorMessages } from '../../constants';
+import { ErrorMessages, toErrorBody } from '../../constants';
 import { type CreateTodoRequestBody, HttpStatus } from '../../types';
 import { createTodo } from '../createTodo';
 
@@ -10,9 +10,6 @@ const baseEvent = {
   requestContext: { http: { method: 'POST' } },
   rawPath: '/todos',
 } as APIGatewayProxyEventV2;
-
-const toErrorBody = (message: (typeof ErrorMessages)[keyof typeof ErrorMessages]) =>
-  JSON.stringify({ error: message.error, details: [message.detail] });
 
 describe('todo作成APIのテスト', () => {
   beforeEach(() => {

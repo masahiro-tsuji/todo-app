@@ -1,0 +1,57 @@
+import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb';
+import { type DynamoDBDocumentClient, UpdateCommand, type UpdateCommandInput } from '@aws-sdk/lib-dynamodb';
+import type { APIGatewayProxyEventV2, APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
+import { demoUserObj, ErrorMessages } from '../constants';
+import { createErrorResponse, createJsonResponse, createZodErrorResponse } from '../libs';
+import { HttpStatus, updateTodoRequestSchema } from '../types';
+
+export const updateTodo = async (
+  dynamoDbClient: DynamoDBDocumentClient,
+  event: APIGatewayProxyEventV2,
+): Promise<APIGatewayProxyStructuredResultV2> => {
+  const id = event.pathParameters?.id;
+  if (!id) return createErrorResponse(HttpStatus.NOT_FOUND, ErrorMessages.NOT_FOUND);
+  if (!event.body) return createErrorResponse(HttpStatus.BAD_REQUEST, ErrorMessages.BODY_REQUIRED);
+
+  let body: unknown;
+  const updates: string[] = [];
+  const values: Record<string, string> = {};
+  // TODO: 共通化
+  try {
+    body = JSON.parse(event.body);
+  } catch {
+    return createErrorResponse(HttpStatus.BAD_REQUEST, ErrorMessages.INVALID_JSON);
+  }
+
+  const resultSchema = updateTodoRequestSchema.safeParse(body);
+  if (!resultSchema.success) return createZodErrorResponse(resultSchema.error.issues);
+
+  const { data } = resultSchema;
+  if (data.title !== undefined) {
+    updates.push('title = :title');
+    values[':title'] = data.title;
+  }
+  if (data.detail !== undefined) {
+    updates.push('detail = :detail');
+    values[':detail'] = data.detail;
+  }
+
+  const input = {
+    TableName: process.env.TABLE_NAME,
+    Key: { userId: demoUserObj.userId, id },
+    ConditionExpression: 'attribute_exists(id)', // NOTE: id が合致する場合更新する（仕様上、存在しないidだった場合、新規作成してしまうため）
+    UpdateExpression: `SET ${updates.join(',')}`,
+    ExpressionAttributeValues: values,
+    ReturnValues: 'ALL_NEW',
+  } as UpdateCommandInput;
+
+  try {
+    const result = await dynamoDbClient.send(new UpdateCommand(input));
+    return createJsonResponse(HttpStatus.OK, result.Attributes);
+  } catch (error) {
+    if (error instanceof ConditionalCheckFailedException) {
+      return createErrorResponse(HttpStatus.NOT_FOUND, ErrorMessages.TODO_NOT_FOUND);
+    }
+    throw error;
+  }
+};
