@@ -46,6 +46,7 @@ exports[`BackendStackのテスト BackendStackのSnapshotテスト 1`] = `
             "HEAD",
             "OPTIONS",
             "POST",
+            "PATCH",
           ],
           "AllowOrigins": [
             "*",
@@ -134,6 +135,64 @@ exports[`BackendStackのテスト BackendStackのSnapshotテスト 1`] = `
                 "Ref": "TodoApi145E2E30",
               },
               "/*/*/todos",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "TodoApiPATCHtodosidD0E8FD9C": {
+      "Properties": {
+        "ApiId": {
+          "Ref": "TodoApi145E2E30",
+        },
+        "AuthorizationType": "NONE",
+        "RouteKey": "PATCH /todos/{id}",
+        "Target": {
+          "Fn::Join": [
+            "",
+            [
+              "integrations/",
+              {
+                "Ref": "TodoApiGETtodostodosIntegration0D4F3125",
+              },
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::ApiGatewayV2::Route",
+    },
+    "TodoApiPATCHtodosidtodosIntegrationPermission7BC004D1": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "TodosHandler090B72EA",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "TodoApi145E2E30",
+              },
+              "/*/*/todos/{id}",
             ],
           ],
         },
