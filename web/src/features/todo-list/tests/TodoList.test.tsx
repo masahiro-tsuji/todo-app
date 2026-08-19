@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MuiProvider } from '@/components';
 import { formatToYYYYMMDDHHmm } from '@/utils';
@@ -17,6 +17,10 @@ const mockTodos = Array(5)
 
 jest.mock('@/hooks/useGetTodos', () => ({
   useGetTodos: () => ({ data: mockTodos }),
+}));
+
+jest.mock('@/hooks/useUpdateTodo', () => ({
+  useUpdateTodo: () => ({ updateTodo: jest.fn(), isPendingUpdateTodo: false }),
 }));
 
 const renderTodoList = () => {
@@ -71,5 +75,17 @@ describe('TodoList コンポーネントのテスト', () => {
     await user.click(screen.getByRole('button', { name: `${target.title}を削除` }));
 
     expect(onDelete).toHaveBeenCalledWith(target.id);
+  });
+
+  test('編集ボタンをクリックすると編集ダイアログが表示されること', async () => {
+    const user = userEvent.setup();
+    renderTodoList();
+    const target = mockTodos[0];
+
+    await user.click(screen.getByRole('button', { name: `${target.title}を編集` }));
+
+    const dialog = screen.getByRole('dialog');
+    expect(within(dialog).getByRole('heading', { name: 'TODO編集' })).toBeInTheDocument();
+    expect(within(dialog).getByRole('textbox', { name: /タイトル/ })).toHaveValue(target.title);
   });
 });

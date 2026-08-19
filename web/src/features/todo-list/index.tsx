@@ -4,8 +4,10 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { Box, IconButton } from '@mui/material';
 import type { GridColDef } from '@mui/x-data-grid';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+import type { Todo } from '@/api/types/todo';
 import { DataGrid } from '@/components';
+import { EditTodo } from '@/features/edit-todo';
 import { useGetTodos } from '@/hooks';
 import { formatToYYYYMMDDHHmm } from '@/utils';
 
@@ -13,15 +15,17 @@ type Props = { onDelete: (id: string) => void };
 
 export const TodoList = ({ onDelete }: Props) => {
   const { data: todos } = useGetTodos();
+  const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
 
-  const handleEdit = useCallback((_id: string) => {}, []);
-
-  const handleDelete = useCallback(
+  const handleEdit = useCallback(
     (id: string) => {
-      onDelete(id);
+      const todo = todos.find((item) => item.id === id) ?? null;
+      setEditingTodo(todo);
     },
-    [onDelete],
+    [todos],
   );
+
+  const handleDelete = useCallback((id: string) => onDelete(id), [onDelete]);
 
   const columns = useMemo<GridColDef[]>(
     () => [
@@ -45,7 +49,16 @@ export const TodoList = ({ onDelete }: Props) => {
         filterable: false,
         disableColumnMenu: true,
         renderCell: (params) => (
-          <Box sx={{ display: 'flex', gap: 0.5, width: '100%', justifyContent: 'center' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 0.5,
+              width: '100%',
+              height: '100%',
+            }}
+          >
             <IconButton aria-label={`${params.row.title}を編集`} onClick={() => handleEdit(params.row.id)} size="small">
               <EditIcon />
             </IconButton>
@@ -64,13 +77,23 @@ export const TodoList = ({ onDelete }: Props) => {
   );
 
   return (
-    <DataGrid
-      rows={todos}
-      columns={columns}
-      getRowId={(row) => row.id}
-      disableRowSelectionOnClick
-      hideFooter
-      sx={{ border: 0 }}
-    />
+    <>
+      <DataGrid
+        rows={todos}
+        columns={columns}
+        getRowId={(row) => row.id}
+        disableRowSelectionOnClick
+        hideFooter
+        sx={{
+          border: 0,
+          '& .MuiDataGrid-cell[data-field="actions"]': {
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          },
+        }}
+      />
+      <EditTodo todo={editingTodo} open={!!editingTodo} onClose={() => setEditingTodo(null)} />
+    </>
   );
 };
