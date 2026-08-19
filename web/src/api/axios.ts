@@ -41,6 +41,14 @@ class AxiosClient {
     const customConfig = this.setHeader(config);
     return await this.axiosInstance.put(url, data, customConfig);
   }
+  public async patch<T = any, R = AxiosResponse<T>, D = any>(
+    url: string,
+    data?: D,
+    config?: AxiosRequestConfig<D>,
+  ): Promise<R> {
+    const customConfig = this.setHeader(config);
+    return await this.axiosInstance.patch(url, data, customConfig);
+  }
   public async delete<T = any, R = AxiosResponse<T>, D = any>(url: string, config?: AxiosRequestConfig<D>): Promise<R> {
     const customConfig = this.setHeader(config);
     return await this.axiosInstance.delete(url, customConfig);
