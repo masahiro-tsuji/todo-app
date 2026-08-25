@@ -10,30 +10,37 @@ COPY package.json package-lock.json* ./
 RUN npm ci
 
 # ========================================================
-# 開発用ビルド
+# 開発用ステージ
+# 起動は docker-compose.yml の command: npm run dev に任せる（CMD なし）
 # ========================================================
 FROM deps as dev
 WORKDIR /app
 # deps ステージから、インストール済みのライブラリだけを引っ張ってくる
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-# テストを実行し、成功したらビルドする
-RUN npm run test && npm run build 
 
 # ========================================================
-# 本番用開発ビルド
+# 本番用ステージ ※ 今回は CloudFront + S3 の構成にしたため下記は使用しない
 # ========================================================
+
+# 本番ステージ用: test + build
+FROM deps AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+RUN npm run test && npm run build
+
 FROM node:22-alpine AS prod
 # https://nextjs.org/docs/messages/non-standard-node-env
 ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 # 静的ファイルのコピー
-COPY --from=dev /app/public ./public
+COPY --from=builder /app/public ./public
 # 本番用プログラムのコピー
-COPY --from=dev --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 #  画面（CSSやJavaScript）データのコピー
-COPY --from=dev --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 USER nextjs
 EXPOSE 3000
 ENV PORT=3000
