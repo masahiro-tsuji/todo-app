@@ -54,8 +54,9 @@ curl -X POST "https://xxxxxx.execute-api.ap-northeast-1.amazonaws.com/xxx" -H "C
 
 1. `npm test`
 2. `snapshot fail` したら `diff` を確認
-3. `npm test -- -u` → `npm test`
-4. PRに `.snap`を含める
+3. `npm run build`
+4. `npm test -- -u` → `npm test`
+5. PRに `.snap`を含める
 
 ### `npm test -- -u` について
 
