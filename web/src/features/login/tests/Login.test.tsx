@@ -6,11 +6,11 @@ import { Login } from '../index';
 const mockPush = jest.fn();
 
 jest.mock('next/navigation', () => ({
-  useRouter: () => ({
-    push: mockPush,
-  }),
+  useRouter: () => ({ push: mockPush }),
   useServerInsertedHTML: () => {},
 }));
+
+jest.mock('aws-amplify/auth', () => ({ signIn: jest.fn() }));
 
 const renderLogin = () => {
   return render(
