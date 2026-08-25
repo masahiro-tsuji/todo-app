@@ -1,10 +1,15 @@
-import type { APIGatewayProxyEventV2 } from 'aws-lambda';
+import type { APIGatewayProxyEventV2WithJWTAuthorizer } from 'aws-lambda';
 import { demoUserObj } from '../../constants';
 import { HttpStatus } from '../../types';
 import { getTodos } from '../getTodos';
 
 const mockSend = jest.fn();
 const mockClient = { send: mockSend } as never;
+
+const baseEvent = {
+  requestContext: { http: { method: 'GET' }, authorizer: { jwt: { claims: { sub: demoUserObj.userId } } } },
+  rawPath: '/todos',
+} as unknown as APIGatewayProxyEventV2WithJWTAuthorizer;
 
 describe('一覧取得のテスト', () => {
   beforeEach(() => {
@@ -18,7 +23,7 @@ describe('一覧取得のテスト', () => {
         { userId: demoUserObj.userId, id: '2', title: 'B', createdAt: '2026-01-02T09:00:00.000Z' },
       ],
     });
-    const response = await getTodos(mockClient, {} as APIGatewayProxyEventV2);
+    const response = await getTodos(mockClient, baseEvent);
     const responseBody = JSON.parse(response?.body ?? '');
     expect(mockSend).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -37,7 +42,7 @@ describe('一覧取得のテスト', () => {
         { userId: demoUserObj.userId, id: '1', title: 'A', createdAt: '2026-01-01T09:00:00.000Z' },
       ],
     });
-    const response = await getTodos(mockClient, {} as APIGatewayProxyEventV2);
+    const response = await getTodos(mockClient, baseEvent);
     const responseBody = JSON.parse(response?.body ?? '');
     expect(response.statusCode).toBe(HttpStatus.OK);
     expect(responseBody[0].createdAt).toBe('2026-01-01T09:00:00.000Z');
@@ -46,7 +51,7 @@ describe('一覧取得のテスト', () => {
 
   test('一覧がない状態でも取得に成功する', async () => {
     mockSend.mockReturnValue({ Items: [] });
-    const response = await getTodos(mockClient, {} as APIGatewayProxyEventV2);
+    const response = await getTodos(mockClient, baseEvent);
     const responseBody = JSON.parse(response?.body ?? '');
     expect(response.statusCode).toBe(HttpStatus.OK);
     expect(responseBody).toHaveLength(0);

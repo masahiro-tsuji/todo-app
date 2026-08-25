@@ -2,16 +2,19 @@
 jest.mock('./handlers/getTodos');
 jest.mock('./handlers/createTodo');
 
-import type { APIGatewayProxyEventV2 } from 'aws-lambda';
+import type { APIGatewayProxyEventV2WithJWTAuthorizer } from 'aws-lambda';
 import { handler } from '.';
-import { ErrorMessages } from './constants';
+import { demoUserObj, ErrorMessages } from './constants';
 // モックをimport
 import { createTodo } from './handlers/createTodo';
 import { getTodos } from './handlers/getTodos';
 import { HttpStatus } from './types';
 
 const todoHandler = async (method: 'GET' | 'POST' | 'PUT', path: string = '/todos') =>
-  await handler({ rawPath: path, requestContext: { http: { method } } } as APIGatewayProxyEventV2);
+  await handler({
+    rawPath: path,
+    requestContext: { http: { method }, authorizer: { jwt: { claims: { sub: demoUserObj.userId } } } },
+  } as unknown as APIGatewayProxyEventV2WithJWTAuthorizer);
 
 describe('GET: /todos のルーティングテストについて', () => {
   beforeEach(() => {

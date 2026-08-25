@@ -1,5 +1,5 @@
-import type { APIGatewayProxyEventV2 } from 'aws-lambda';
-import { ErrorMessages, toErrorBody } from '../../constants';
+import type { APIGatewayProxyEventV2WithJWTAuthorizer } from 'aws-lambda';
+import { demoUserObj, ErrorMessages, toErrorBody } from '../../constants';
 import { type CreateTodoRequestBody, HttpStatus } from '../../types';
 import { createTodo } from '../createTodo';
 
@@ -7,9 +7,9 @@ const mockSend = jest.fn();
 const mockClient = { send: mockSend } as never;
 
 const baseEvent = {
-  requestContext: { http: { method: 'POST' } },
+  requestContext: { http: { method: 'POST' }, authorizer: { jwt: { claims: { sub: demoUserObj.userId } } } },
   rawPath: '/todos',
-} as APIGatewayProxyEventV2;
+} as unknown as APIGatewayProxyEventV2WithJWTAuthorizer;
 
 describe('todo作成APIのテスト', () => {
   beforeEach(() => {

@@ -1,7 +1,7 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
-import type { APIGatewayProxyEventV2 } from 'aws-lambda';
-import { demoUserObj, ErrorMessages } from './constants';
+import type { APIGatewayProxyEventV2WithJWTAuthorizer } from 'aws-lambda';
+import { ErrorMessages } from './constants';
 import { createTodo } from './handlers/createTodo';
 import { getTodos } from './handlers/getTodos';
 import { updateTodo } from './handlers/updateTodo';
@@ -11,9 +11,10 @@ import { HttpStatus } from './types';
 const client = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(client);
 
-export const handler = async (event: APIGatewayProxyEventV2) => {
+export const handler = async (event: APIGatewayProxyEventV2WithJWTAuthorizer) => {
   const method = event.requestContext.http.method;
   const path = event.rawPath;
+  const userId = event.requestContext.authorizer.jwt.claims.sub as string;
 
   try {
     if (path === '/todos') {
@@ -28,7 +29,7 @@ export const handler = async (event: APIGatewayProxyEventV2) => {
     const errorLog = createErrorJsonLog({
       requestId: event.requestContext.requestId,
       message: ErrorMessages.INTERNAL_SERVER_ERROR.error,
-      userId: demoUserObj.userId, // TODO: Cognito 後に JWT の sub に差し替え
+      userId: userId,
       error: error instanceof Error ? { message: error.message, stack: error.stack } : error,
     });
     console.error(errorLog);

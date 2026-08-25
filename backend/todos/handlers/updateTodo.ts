@@ -1,18 +1,19 @@
 import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb';
 import { type DynamoDBDocumentClient, UpdateCommand, type UpdateCommandInput } from '@aws-sdk/lib-dynamodb';
-import type { APIGatewayProxyEventV2, APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
-import { demoUserObj, ErrorMessages } from '../constants';
+import type { APIGatewayProxyEventV2WithJWTAuthorizer, APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
+import { ErrorMessages } from '../constants';
 import { createErrorResponse, createJsonResponse, createZodErrorResponse } from '../libs';
 import { HttpStatus, updateTodoRequestSchema } from '../types';
 
 export const updateTodo = async (
   dynamoDbClient: DynamoDBDocumentClient,
-  event: APIGatewayProxyEventV2,
+  event: APIGatewayProxyEventV2WithJWTAuthorizer,
 ): Promise<APIGatewayProxyStructuredResultV2> => {
   const id = event.pathParameters?.id;
   if (!id) return createErrorResponse(HttpStatus.NOT_FOUND, ErrorMessages.NOT_FOUND);
   if (!event.body) return createErrorResponse(HttpStatus.BAD_REQUEST, ErrorMessages.BODY_REQUIRED);
 
+  const userId = event.requestContext.authorizer.jwt.claims.sub as string;
   let body: unknown;
   const updates: string[] = [];
   const values: Record<string, string> = {};
@@ -38,7 +39,7 @@ export const updateTodo = async (
 
   const input = {
     TableName: process.env.TABLE_NAME,
-    Key: { userId: demoUserObj.userId, id },
+    Key: { userId, id }, // NOTE: userId, id(todoId) が一致する行を更新対象とする（partitionKey が userId, sortKey が id）
     ConditionExpression: 'attribute_exists(id)', // NOTE: id が合致する場合更新する（仕様上、存在しないidだった場合、新規作成してしまうため）
     UpdateExpression: `SET ${updates.join(',')}`,
     ExpressionAttributeValues: values,
