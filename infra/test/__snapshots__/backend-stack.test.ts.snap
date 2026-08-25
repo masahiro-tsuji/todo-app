@@ -57,6 +57,41 @@ exports[`BackendStackのテスト BackendStackのSnapshotテスト 1`] = `
       },
       "Type": "AWS::ApiGatewayV2::Api",
     },
+    "TodoApiCognitoAuthorizer76D497FB": {
+      "Properties": {
+        "ApiId": {
+          "Ref": "TodoApi145E2E30",
+        },
+        "AuthorizerType": "JWT",
+        "IdentitySource": [
+          "$request.header.Authorization",
+        ],
+        "JwtConfiguration": {
+          "Audience": [
+            {
+              "Fn::ImportValue": "AuthStack:ExportsOutputRefUserPoolWebClient4C9370B02E2C9FF9",
+            },
+          ],
+          "Issuer": {
+            "Fn::Join": [
+              "",
+              [
+                "https://cognito-idp.",
+                {
+                  "Ref": "AWS::Region",
+                },
+                ".amazonaws.com/",
+                {
+                  "Fn::ImportValue": "AuthStack:ExportsOutputRefUserPool6BA7E5F296FD7236",
+                },
+              ],
+            ],
+          },
+        },
+        "Name": "CognitoAuthorizer",
+      },
+      "Type": "AWS::ApiGatewayV2::Authorizer",
+    },
     "TodoApiDefaultStage5B325C9F": {
       "Properties": {
         "ApiId": {
@@ -72,7 +107,10 @@ exports[`BackendStackのテスト BackendStackのSnapshotテスト 1`] = `
         "ApiId": {
           "Ref": "TodoApi145E2E30",
         },
-        "AuthorizationType": "NONE",
+        "AuthorizationType": "JWT",
+        "AuthorizerId": {
+          "Ref": "TodoApiCognitoAuthorizer76D497FB",
+        },
         "RouteKey": "GET /todos",
         "Target": {
           "Fn::Join": [
@@ -146,7 +184,10 @@ exports[`BackendStackのテスト BackendStackのSnapshotテスト 1`] = `
         "ApiId": {
           "Ref": "TodoApi145E2E30",
         },
-        "AuthorizationType": "NONE",
+        "AuthorizationType": "JWT",
+        "AuthorizerId": {
+          "Ref": "TodoApiCognitoAuthorizer76D497FB",
+        },
         "RouteKey": "PATCH /todos/{id}",
         "Target": {
           "Fn::Join": [
@@ -204,7 +245,10 @@ exports[`BackendStackのテスト BackendStackのSnapshotテスト 1`] = `
         "ApiId": {
           "Ref": "TodoApi145E2E30",
         },
-        "AuthorizationType": "NONE",
+        "AuthorizationType": "JWT",
+        "AuthorizerId": {
+          "Ref": "TodoApiCognitoAuthorizer76D497FB",
+        },
         "RouteKey": "POST /todos",
         "Target": {
           "Fn::Join": [
@@ -267,7 +311,7 @@ exports[`BackendStackのテスト BackendStackのSnapshotテスト 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "c017341e5cdee95e6e74fed718d95f8a17290754a5750d65ca192455342148fe.zip",
+          "S3Key": "a9c92e65b335bed6f145e283d8b772401d3adf4972585cb4a0a00c93d09dbe17.zip",
         },
         "Environment": {
           "Variables": {

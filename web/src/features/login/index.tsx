@@ -2,6 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Box, Paper, TextField, Typography } from '@mui/material';
+import { signIn } from 'aws-amplify/auth';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components';
@@ -11,6 +12,7 @@ export const Login = () => {
   const router = useRouter();
   const {
     register,
+    getValues,
     formState: { errors },
   } = useForm<LoginForm>({
     mode: 'all',
@@ -18,22 +20,18 @@ export const Login = () => {
     defaultValues: { email: '', password: '' },
   });
 
-  // const onSubmit = (_data: LoginForm) => {
-  //   router.push('/list');
-  // };
-
-  const onClick = () => router.push('/list');
+  const onClick = async () => {
+    const { email, password } = getValues();
+    await signIn({ username: email, password: password });
+    router.push('/list');
+  };
 
   return (
     <Paper sx={{ width: '100%', maxWidth: 400, p: 4 }}>
       <Typography variant="h5" component="h1" sx={{ mb: 3, textAlign: 'center' }}>
         ログイン
       </Typography>
-      <Box
-        // component="form"
-        // onSubmit={handleSubmit(onSubmit)}
-        sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
-      >
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <TextField
           label="メールアドレス"
           type="email"
@@ -52,7 +50,7 @@ export const Login = () => {
           fullWidth
           autoComplete="current-password"
         />
-        <Button name="ログイン" type="submit" variant="contained" fullWidth onClick={onClick} />
+        <Button name="ログイン" variant="contained" fullWidth onClick={onClick} />
       </Box>
     </Paper>
   );

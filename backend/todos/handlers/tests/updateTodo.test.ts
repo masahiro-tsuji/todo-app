@@ -1,6 +1,6 @@
 import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb';
-import type { APIGatewayProxyEventV2 } from 'aws-lambda';
-import { ErrorMessages, toErrorBody } from '../../constants';
+import type { APIGatewayProxyEventV2WithJWTAuthorizer } from 'aws-lambda';
+import { demoUserObj, ErrorMessages, toErrorBody } from '../../constants';
 import { HttpStatus } from '../../types';
 import { updateTodo } from '../updateTodo';
 
@@ -10,8 +10,8 @@ const mockClient = { send: mockSend } as never;
 const baseEvent = {
   rawPath: '/todos/12345',
   pathParameters: { id: '12345' },
-  requestContext: { http: { method: 'PATCH' } },
-} as unknown as APIGatewayProxyEventV2;
+  requestContext: { http: { method: 'PATCH' }, authorizer: { jwt: { claims: { sub: demoUserObj.userId } } } },
+} as unknown as APIGatewayProxyEventV2WithJWTAuthorizer;
 
 describe('更新処理APIの成功テスト', () => {
   beforeEach(() => {
@@ -88,7 +88,7 @@ describe('更新処理APIのエラーテスト', () => {
       rawPath: '/todos/undefined',
       pathParameters: {},
       requestContext: { http: { method: 'PATCH' } },
-    } as unknown as APIGatewayProxyEventV2;
+    } as unknown as APIGatewayProxyEventV2WithJWTAuthorizer;
     const body = JSON.stringify({ title: 'あいうえお', detail: 'かきくけこ' });
     const result = await updateTodo(mockClient, { ...event, body });
     expect(result.statusCode).toBe(HttpStatus.NOT_FOUND);

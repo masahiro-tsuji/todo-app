@@ -2,11 +2,16 @@ import { App } from 'aws-cdk-lib';
 import { Template } from 'aws-cdk-lib/assertions';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as logs from 'aws-cdk-lib/aws-logs';
+import { AuthStack } from '../lib/auth-stack';
 import { BackendStack, TODOS_LAMBDA_NAME } from '../lib/backend-stack';
 
 const getTemplate = () => {
   const app = new App({ context: { '@aws-cdk/aws-lambda:useCdkManagedLogGroup': true } });
-  const stack = new BackendStack(app, 'BackendStack');
+  const authStack = new AuthStack(app, 'AuthStack');
+  const stack = new BackendStack(app, 'BackendStack', {
+    userPool: authStack.userPool,
+    userPoolClient: authStack.userPoolClient,
+  });
   const template = Template.fromStack(stack);
   return template;
 };

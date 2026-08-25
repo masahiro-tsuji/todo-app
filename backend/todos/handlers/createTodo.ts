@@ -1,15 +1,16 @@
 import { type DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
-import type { APIGatewayProxyEventV2, APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
-import { demoUserObj, ErrorMessages } from '../constants';
+import type { APIGatewayProxyEventV2WithJWTAuthorizer, APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
+import { ErrorMessages } from '../constants';
 import { createErrorResponse, createJsonResponse, createZodErrorResponse } from '../libs';
 import { createTodoBodySchema, HttpStatus } from '../types';
 
 export const createTodo = async (
   dynamoDbClient: DynamoDBDocumentClient,
-  event: APIGatewayProxyEventV2,
+  event: APIGatewayProxyEventV2WithJWTAuthorizer,
 ): Promise<APIGatewayProxyStructuredResultV2> => {
   if (!event.body) return createErrorResponse(HttpStatus.BAD_REQUEST, ErrorMessages.BODY_REQUIRED);
 
+  const userId = event.requestContext.authorizer.jwt.claims.sub as string;
   let body: unknown;
 
   try {
@@ -23,7 +24,7 @@ export const createTodo = async (
 
   const { data } = result;
   const item = {
-    userId: demoUserObj.userId,
+    userId: userId,
     id: crypto.randomUUID(),
     title: data.title,
     detail: data.detail,

@@ -1,7 +1,9 @@
 import * as path from 'node:path';
 import * as cdk from 'aws-cdk-lib';
 import * as apigatewayv2 from 'aws-cdk-lib/aws-apigatewayv2';
+import * as authz from 'aws-cdk-lib/aws-apigatewayv2-authorizers';
 import { HttpLambdaIntegration } from 'aws-cdk-lib/aws-apigatewayv2-integrations';
+import type * as cognito from 'aws-cdk-lib/aws-cognito';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
@@ -11,10 +13,15 @@ import type { Construct } from 'constructs';
 const todosPath = path.join(__dirname, '../../backend/todos');
 export const TODOS_LAMBDA_NAME = 'todos-function';
 
-export class BackendStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
-    super(scope, id, props);
+interface Props extends cdk.StackProps {
+  userPool: cognito.IUserPool;
+  userPoolClient: cognito.IUserPoolClient;
+}
 
+export class BackendStack extends cdk.Stack {
+  constructor(scope: Construct, id: string, props: Props) {
+    super(scope, id, props);
+    const { userPool, userPoolClient } = props;
     /** DynamoDBの設定 */
     const todosTable = new dynamodb.Table(this, 'TodosTable', {
       tableName: 'todos',
@@ -47,8 +54,14 @@ export class BackendStack extends cdk.Stack {
     todosTable.grantReadWriteData(todosLambda);
 
     //  APIGateway定義
+    const authorizer = new authz.HttpUserPoolAuthorizer('CognitoAuthorizer', userPool, {
+      authorizerName: 'CognitoAuthorizer',
+      userPoolClients: [userPoolClient],
+    });
+
     const todosIntegration = new HttpLambdaIntegration('todosIntegration', todosLambda);
     const httpApi = new apigatewayv2.HttpApi(this, 'TodoApi', {
+      defaultAuthorizer: authorizer,
       corsPreflight: {
         allowHeaders: ['Content-Type'], // ← がないとCORSの制限に引っかかる（フロント側で「Content-Type: application/json」としてるため）
         allowOrigins: ['*'],

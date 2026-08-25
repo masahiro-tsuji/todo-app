@@ -8,12 +8,14 @@ services:
     ports:
       - '3000:3000'
     volumes:
-      - .:/app # コード変更をコンテナにリアルタイム同期（マウント）
-      - /app/node_modules # コンテナ内のライブラリが上書きされて消えるのを防ぐ
+      - .:/app # ホストの web/ を /app に同期（ソース変更を即反映）
+      - /app/node_modules # ホストの node_modules で上書きせず、コンテナ（npm ci）の依存関係を使う
+      - /app/.next # ホスト側の古い .next を読まず、コンテナ専用キャッシュを使う
     environment:
       - WATCHPACK_POLLING=true # ホットリロードの設定
-    command: npm run dev # Dockerfileの末尾のCMDを「開発用サーバー起動」に上書き
+    command: npm run dev # compose 側で dev サーバー起動（Dockerfile dev に CMD なし）
 
+# 今回は CloudFront + S3 の構成にしたため下記は使用しない
   # 本番用
   prod:
     build:
