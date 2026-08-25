@@ -267,7 +267,7 @@ exports[`BackendStackのテスト BackendStackのSnapshotテスト 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "c017341e5cdee95e6e74fed718d95f8a17290754a5750d65ca192455342148fe.zip",
+          "S3Key": "a9c92e65b335bed6f145e283d8b772401d3adf4972585cb4a0a00c93d09dbe17.zip",
         },
         "Environment": {
           "Variables": {
