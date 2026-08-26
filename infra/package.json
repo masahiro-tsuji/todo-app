@@ -6,9 +6,12 @@
     "watch": "tsc -w",
     "test": "jest",
     "test:watch": "jest --watch",
-    "cdk": "cdk"
+    "cdk": "cdk",
+    "lint": "biome check",
+    "format": "biome format --write"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.5.5",
     "@types/jest": "^30",
     "@types/node": "^24.13.3",
     "aws-cdk": "2.1130.0",

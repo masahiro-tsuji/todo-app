@@ -8,6 +8,7 @@
     "lint:web": "npm run lint --prefix web",
     "test:web": "npm run test --prefix web",
     "build:infra": "npm run build --prefix infra",
+    "lint:infra": "npm run lint --prefix infra",
     "test:infra": "npm run test --prefix infra",
     "lint:backend": "npm run lint --prefix backend/todos",
     "test:backend": "npm run test --prefix backend/todos"
