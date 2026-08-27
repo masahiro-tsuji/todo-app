@@ -63,7 +63,7 @@ export class BackendStack extends cdk.Stack {
     const httpApi = new apigatewayv2.HttpApi(this, 'TodoApi', {
       defaultAuthorizer: authorizer,
       corsPreflight: {
-        allowHeaders: ['Content-Type'], // ← がないとCORSの制限に引っかかる（フロント側で「Content-Type: application/json」としてるため）
+        allowHeaders: ['Content-Type', 'Authorization'], // ← がないとCORSの制限に引っかかる（フロント側で「Content-Type: application/json」としてるため）
         allowOrigins: ['*'],
         allowMethods: [
           apigatewayv2.CorsHttpMethod.GET,

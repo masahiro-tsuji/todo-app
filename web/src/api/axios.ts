@@ -1,4 +1,6 @@
 /** biome-ignore-all lint/suspicious/noExplicitAny: <explanation> */
+
+import { fetchAuthSession } from 'aws-amplify/auth';
 import axios, { type AxiosError, type AxiosInstance, type AxiosRequestConfig, type AxiosResponse } from 'axios';
 
 class AxiosClient {
@@ -6,6 +8,13 @@ class AxiosClient {
 
   constructor(baseURL = `${process.env.NEXT_PUBLIC_BASE_URL}`) {
     this.axiosInstance = axios.create({ baseURL });
+    this.axiosInstance.interceptors.request.use(async (config) => {
+      // 認証情報の設定
+      const session = await fetchAuthSession();
+      const idToken = session.tokens?.idToken?.toString();
+      if (idToken) config.headers.Authorization = `Bearer ${idToken}`;
+      return config;
+    });
     this.axiosInstance.interceptors.response.use(
       (response) => {
         return Promise.resolve(response);

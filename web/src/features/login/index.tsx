@@ -2,17 +2,18 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Box, Paper, TextField, Typography } from '@mui/material';
-import { signIn } from 'aws-amplify/auth';
-import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
-import { Button } from '@/components';
+import { Button, LoadingIndicator } from '@/components';
+import { useAuth, useRedirectIfAuthenticated } from '@/hooks';
 import { type LoginForm, loginFormSchema } from './types';
 
 export const Login = () => {
-  const router = useRouter();
+  const { isLoading, errorMessage, login } = useAuth();
+  const { isChecking } = useRedirectIfAuthenticated();
+
   const {
     register,
-    getValues,
+    handleSubmit,
     formState: { errors },
   } = useForm<LoginForm>({
     mode: 'all',
@@ -20,18 +21,17 @@ export const Login = () => {
     defaultValues: { email: '', password: '' },
   });
 
-  const onClick = async () => {
-    const { email, password } = getValues();
-    await signIn({ username: email, password: password });
-    router.push('/list');
+  const onLogin = async ({ email, password }: LoginForm) => {
+    await login(email, password);
   };
 
+  if (isChecking) return <LoadingIndicator />;
   return (
     <Paper sx={{ width: '100%', maxWidth: 400, p: 4 }}>
       <Typography variant="h5" component="h1" sx={{ mb: 3, textAlign: 'center' }}>
         ログイン
       </Typography>
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <Box component="form" onSubmit={handleSubmit(onLogin)} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <TextField
           label="メールアドレス"
           type="email"
@@ -50,7 +50,12 @@ export const Login = () => {
           fullWidth
           autoComplete="current-password"
         />
-        <Button name="ログイン" variant="contained" fullWidth onClick={onClick} />
+        {errorMessage && (
+          <Typography color="error" variant="body2">
+            {errorMessage}
+          </Typography>
+        )}
+        <Button name="ログイン" type="submit" variant="contained" fullWidth loading={isLoading} />
       </Box>
     </Paper>
   );
