@@ -41,27 +41,27 @@ export const NewPassword = () => {
 
   return (
     <Paper sx={{ width: '100%', maxWidth: 400, p: 4 }}>
-      <Typography variant="h5" component="h1" sx={{ mb: 3, textAlign: 'center' }}>
+      <Typography variant='h5' component='h1' sx={{ mb: 3, textAlign: 'center' }}>
         新しいパスワード
       </Typography>
-      <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <Box component='form' onSubmit={handleSubmit(onSubmit)} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <TextField
-          label="新しいパスワード"
-          type="password"
+          label='新しいパスワード'
+          type='password'
           {...register('newPassword')}
           error={!!errors.newPassword}
           helperText={errors.newPassword?.message ?? '8文字以上・小文字・数字を含めてください'}
           fullWidth
-          autoComplete="new-password"
+          autoComplete='new-password'
         />
         {errorMessage && (
-          <Typography color="error" variant="body2">
+          <Typography color='error' variant='body2'>
             {errorMessage}
           </Typography>
         )}
-        <Button name="パスワードを設定" type="submit" variant="contained" fullWidth disabled={isSubmitting} />
+        <Button name='パスワードを設定' type='submit' variant='contained' fullWidth disabled={isSubmitting} />
         {errorMessage && (
-          <Link component={NextLink} href="/login" variant="body2" sx={{ textAlign: 'center' }}>
+          <Link component={NextLink} href='/login' variant='body2' sx={{ textAlign: 'center' }}>
             ログイン画面へ戻る
           </Link>
         )}

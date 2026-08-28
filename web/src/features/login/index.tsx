@@ -26,34 +26,34 @@ export const Login = () => {
 
   return (
     <Paper sx={{ width: '100%', maxWidth: 400, p: 4 }}>
-      <Typography variant="h5" component="h1" sx={{ mb: 3, textAlign: 'center' }}>
+      <Typography variant='h5' component='h1' sx={{ mb: 3, textAlign: 'center' }}>
         ログイン
       </Typography>
-      <Box component="form" onSubmit={handleSubmit(onLogin)} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <Box component='form' onSubmit={handleSubmit(onLogin)} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <TextField
-          label="メールアドレス"
-          type="email"
+          label='メールアドレス'
+          type='email'
           {...register('email')}
           error={!!errors.email}
           helperText={errors.email?.message}
           fullWidth
-          autoComplete="email"
+          autoComplete='email'
         />
         <TextField
-          label="パスワード"
-          type="password"
+          label='パスワード'
+          type='password'
           {...register('password')}
           error={!!errors.password}
           helperText={errors.password?.message}
           fullWidth
-          autoComplete="current-password"
+          autoComplete='current-password'
         />
         {errorMessage && (
-          <Typography color="error" variant="body2">
+          <Typography color='error' variant='body2'>
             {errorMessage}
           </Typography>
         )}
-        <Button name="ログイン" type="submit" variant="contained" fullWidth loading={isLoading} />
+        <Button name='ログイン' type='submit' variant='contained' fullWidth loading={isLoading} />
       </Box>
     </Paper>
   );

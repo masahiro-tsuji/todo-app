@@ -7,7 +7,7 @@ const divStyle: CSSProperties = { height: '100dvh', backgroundColor: theme.grey.
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="ja">
+    <html lang='ja'>
       <body>
         <AmplifyProvider>
           <QueryProvider>
