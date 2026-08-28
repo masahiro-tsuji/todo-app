@@ -56,16 +56,16 @@ export const EditTodo = ({ todo, open, onClose }: Props) => {
   return (
     <Dialog
       open={open}
-      title="TODO編集"
-      submitButtonName="更新"
+      title='TODO編集'
+      primaryButtonName='更新'
       onClose={handleClose}
-      onSubmit={handleSubmit(onSubmit)}
-      loading={isPendingUpdateTodo}
+      onPrimaryClick={handleSubmit(onSubmit)}
+      primaryLoading={isPendingUpdateTodo}
     >
       <TextField
         {...titleField}
         slotProps={{ htmlInput: { ref: titleRef } }}
-        label="タイトル"
+        label='タイトル'
         error={!!errors.title && (touchedFields.title || isSubmitted)}
         helperText={touchedFields.title || isSubmitted ? errors.title?.message : undefined}
         fullWidth
@@ -73,7 +73,7 @@ export const EditTodo = ({ todo, open, onClose }: Props) => {
       <TextField
         {...detailField}
         slotProps={{ htmlInput: { ref: detailRef } }}
-        label="詳細"
+        label='詳細'
         error={!!errors.detail && (touchedFields.detail || isSubmitted)}
         helperText={touchedFields.detail || isSubmitted ? errors.detail?.message : undefined}
         fullWidth

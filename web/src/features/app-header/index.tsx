@@ -32,7 +32,7 @@ export const AppHeader = () => {
 
   return (
     <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 2 }}>
-      <Button name="ログアウト" variant="outlined" onClick={logout} loading={isLoading} />
+      <Button name='ログアウト' variant='outlined' onClick={logout} loading={isLoading} />
     </Box>
   );
 };
