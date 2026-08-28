@@ -3,13 +3,12 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Box, Paper, TextField, Typography } from '@mui/material';
 import { useForm } from 'react-hook-form';
-import { Button, LoadingIndicator } from '@/components';
-import { useAuth, useRedirectIfAuthenticated } from '@/hooks';
+import { Button } from '@/components';
+import { useAuth } from '@/hooks';
 import { type LoginForm, loginFormSchema } from './types';
 
 export const Login = () => {
   const { isLoading, errorMessage, login } = useAuth();
-  const { isChecking } = useRedirectIfAuthenticated();
 
   const {
     register,
@@ -25,7 +24,6 @@ export const Login = () => {
     await login(email, password);
   };
 
-  if (isChecking) return <LoadingIndicator />;
   return (
     <Paper sx={{ width: '100%', maxWidth: 400, p: 4 }}>
       <Typography variant="h5" component="h1" sx={{ mb: 3, textAlign: 'center' }}>

@@ -5,9 +5,8 @@ import { fetchAuthSession } from 'aws-amplify/auth';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components';
+import { isGuestPath } from '@/constants/routes';
 import { useAuth } from '@/hooks';
-
-const guestPaths = ['/login', '/new-password'];
 
 export const AppHeader = () => {
   const pathname = usePathname();
@@ -16,7 +15,7 @@ export const AppHeader = () => {
   const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
-    if (guestPaths.includes(pathname)) {
+    if (isGuestPath(pathname)) {
       setIsAuthenticated(false);
       setIsChecking(false);
       return;
@@ -28,11 +27,11 @@ export const AppHeader = () => {
       .finally(() => setIsChecking(false));
   }, [pathname]);
 
-  if (isChecking || !isAuthenticated || guestPaths.includes(pathname)) return null;
+  if (isChecking || !isAuthenticated || isGuestPath(pathname)) return null;
 
   return (
     <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 2 }}>
-      <Button name='ログアウト' variant='outlined' onClick={logout} loading={isLoading} />
+      <Button name="ログアウト" variant="outlined" onClick={logout} loading={isLoading} />
     </Box>
   );
 };

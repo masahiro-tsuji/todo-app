@@ -17,15 +17,17 @@ jest.mock('aws-amplify/auth', () => ({
 }));
 
 import { fetchAuthSession, signOut } from 'aws-amplify/auth';
-import { MuiProvider, QueryProvider } from '@/components';
+import { ConfirmDialogProvider, MuiProvider, QueryProvider } from '@/components';
 import { AppHeader } from '../index';
 
 const renderAppHeader = () => {
   return render(
     <QueryProvider>
-      <MuiProvider>
-        <AppHeader />
-      </MuiProvider>
+      <ConfirmDialogProvider>
+        <MuiProvider>
+          <AppHeader />
+        </MuiProvider>
+      </ConfirmDialogProvider>
     </QueryProvider>,
   );
 };
@@ -83,6 +85,12 @@ describe('AppHeader コンポーネントのテスト', () => {
     });
 
     await userEvent.click(screen.getByRole('button', { name: 'ログアウト' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('ログアウトしますか？')).toBeInTheDocument();
+    });
+
+    await userEvent.click(screen.getByRole('button', { name: 'OK' }));
 
     await waitFor(() => {
       expect(signOut).toHaveBeenCalled();

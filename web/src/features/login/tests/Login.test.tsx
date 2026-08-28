@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MuiProvider } from '@/components';
+import { ConfirmDialogProvider, MuiProvider, QueryProvider } from '@/components';
 import { Login } from '../index';
 
 const mockReplace = jest.fn();
@@ -20,9 +20,13 @@ jest.mock('aws-amplify/auth', () => ({
 
 const renderLogin = () => {
   return render(
-    <MuiProvider>
-      <Login />
-    </MuiProvider>,
+    <QueryProvider>
+      <ConfirmDialogProvider>
+        <MuiProvider>
+          <Login />
+        </MuiProvider>
+      </ConfirmDialogProvider>
+    </QueryProvider>,
   );
 };
 

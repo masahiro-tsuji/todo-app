@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import { AmplifyProvider, ConfirmDialogProvider, MuiProvider, QueryProvider } from '@/components';
+import { AmplifyProvider, AuthProvider, ConfirmDialogProvider, MuiProvider, QueryProvider } from '@/components';
 import { AppHeader } from '@/features/app-header';
 import { theme } from '../../theme';
 
@@ -13,10 +13,12 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <QueryProvider>
             <ConfirmDialogProvider>
               <MuiProvider>
-                <div style={divStyle}>
-                  <AppHeader />
-                  {children}
-                </div>
+                <AuthProvider>
+                  <div style={divStyle}>
+                    <AppHeader />
+                    {children}
+                  </div>
+                </AuthProvider>
               </MuiProvider>
             </ConfirmDialogProvider>
           </QueryProvider>
