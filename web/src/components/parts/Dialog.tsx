@@ -1,26 +1,33 @@
 'use client';
 
 import {
-  Box,
   DialogActions,
   DialogContent,
   DialogTitle,
+  Divider,
   Dialog as MuiDialog,
   type DialogProps as MuiDialogProps,
 } from '@mui/material';
-import { type FormEventHandler, forwardRef, type ReactNode } from 'react';
+import { forwardRef } from 'react';
 import { Button } from './Button';
 
+type DialogSize = 'sm' | 'md' | 'lg';
+
+const sizeToMaxWidth = {
+  sm: 'sm',
+  md: 'md',
+  lg: 'lg',
+} as const satisfies Record<DialogSize, NonNullable<MuiDialogProps['maxWidth']>>;
+
 type Props = {
-  open: boolean;
   title: string;
   onClose: () => void;
-  onSubmit: FormEventHandler<HTMLFormElement>;
-  children: ReactNode;
+  onPrimaryClick: () => void | Promise<void>;
   cancelButtonName?: string;
-  submitButtonName?: string;
-  loading?: boolean;
-} & Omit<MuiDialogProps, 'children' | 'onClose' | 'open' | 'title'>;
+  primaryButtonName?: string;
+  primaryLoading?: boolean;
+  size?: DialogSize;
+} & Omit<MuiDialogProps, 'onClose' | 'maxWidth'>;
 
 export const Dialog = forwardRef<HTMLDivElement, Props>(
   (
@@ -28,13 +35,13 @@ export const Dialog = forwardRef<HTMLDivElement, Props>(
       open,
       title,
       onClose,
-      onSubmit,
+      onPrimaryClick,
       children,
       cancelButtonName = 'キャンセル',
-      submitButtonName = 'OK',
-      loading = false,
+      primaryButtonName = 'OK',
+      primaryLoading = false,
+      size = 'md',
       fullWidth = true,
-      maxWidth = 'sm',
       disableAutoFocus = true,
       ...props
     },
@@ -50,18 +57,24 @@ export const Dialog = forwardRef<HTMLDivElement, Props>(
         open={open}
         onClose={(_, reason) => onCloseDialog(reason)}
         fullWidth={fullWidth}
-        maxWidth={maxWidth}
+        maxWidth={sizeToMaxWidth[size]}
         disableAutoFocus={disableAutoFocus}
         {...props}
       >
         <DialogTitle>{title}</DialogTitle>
-        <Box component="form" onSubmit={onSubmit}>
-          <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>{children}</DialogContent>
-          <DialogActions sx={{ px: 3, pb: 3 }}>
-            <Button name={cancelButtonName} type="button" onClick={onClose} />
-            <Button name={submitButtonName} type="submit" variant="contained" loading={loading} />
-          </DialogActions>
-        </Box>
+        <Divider />
+        <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>{children}</DialogContent>
+        <Divider />
+        <DialogActions sx={{ px: 3, py: 2 }}>
+          <Button name={cancelButtonName} type='button' onClick={onClose} />
+          <Button
+            name={primaryButtonName}
+            type='button'
+            variant='contained'
+            loading={primaryLoading}
+            onClick={onPrimaryClick}
+          />
+        </DialogActions>
       </MuiDialog>
     );
   },

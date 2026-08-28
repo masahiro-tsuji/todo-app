@@ -59,13 +59,13 @@ export const TodoList = ({ onDelete }: Props) => {
               height: '100%',
             }}
           >
-            <IconButton aria-label={`${params.row.title}を編集`} onClick={() => handleEdit(params.row.id)} size="small">
+            <IconButton aria-label={`${params.row.title}を編集`} onClick={() => handleEdit(params.row.id)} size='small'>
               <EditIcon />
             </IconButton>
             <IconButton
               aria-label={`${params.row.title}を削除`}
               onClick={() => handleDelete(params.row.id)}
-              size="small"
+              size='small'
             >
               <DeleteIcon />
             </IconButton>

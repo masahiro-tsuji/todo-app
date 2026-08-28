@@ -2,17 +2,17 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Box, Paper, TextField, Typography } from '@mui/material';
-import { signIn } from 'aws-amplify/auth';
-import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components';
+import { useAuth } from '@/hooks';
 import { type LoginForm, loginFormSchema } from './types';
 
 export const Login = () => {
-  const router = useRouter();
+  const { isLoading, errorMessage, login } = useAuth();
+
   const {
     register,
-    getValues,
+    handleSubmit,
     formState: { errors },
   } = useForm<LoginForm>({
     mode: 'all',
@@ -20,37 +20,40 @@ export const Login = () => {
     defaultValues: { email: '', password: '' },
   });
 
-  const onClick = async () => {
-    const { email, password } = getValues();
-    await signIn({ username: email, password: password });
-    router.push('/list');
+  const onLogin = async ({ email, password }: LoginForm) => {
+    await login(email, password);
   };
 
   return (
     <Paper sx={{ width: '100%', maxWidth: 400, p: 4 }}>
-      <Typography variant="h5" component="h1" sx={{ mb: 3, textAlign: 'center' }}>
+      <Typography variant='h5' component='h1' sx={{ mb: 3, textAlign: 'center' }}>
         ログイン
       </Typography>
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <Box component='form' onSubmit={handleSubmit(onLogin)} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <TextField
-          label="メールアドレス"
-          type="email"
+          label='メールアドレス'
+          type='email'
           {...register('email')}
           error={!!errors.email}
           helperText={errors.email?.message}
           fullWidth
-          autoComplete="email"
+          autoComplete='email'
         />
         <TextField
-          label="パスワード"
-          type="password"
+          label='パスワード'
+          type='password'
           {...register('password')}
           error={!!errors.password}
           helperText={errors.password?.message}
           fullWidth
-          autoComplete="current-password"
+          autoComplete='current-password'
         />
-        <Button name="ログイン" variant="contained" fullWidth onClick={onClick} />
+        {errorMessage && (
+          <Typography color='error' variant='body2'>
+            {errorMessage}
+          </Typography>
+        )}
+        <Button name='ログイン' type='submit' variant='contained' fullWidth loading={isLoading} />
       </Box>
     </Paper>
   );

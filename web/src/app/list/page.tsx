@@ -19,7 +19,7 @@ export default function ListPage() {
   return (
     <Box sx={boxProps}>
       <Paper elevation={3} sx={{ width: '100%', maxWidth: '900px', m: 1, p: 1 }}>
-        <Typography variant="h1" component="h1" sx={{ textAlign: 'center' }}>
+        <Typography variant='h1' component='h1' sx={{ textAlign: 'center' }}>
           TODO一覧
         </Typography>
         <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>

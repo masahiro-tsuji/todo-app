@@ -49,19 +49,19 @@ export const CreateTodo = () => {
 
   return (
     <>
-      <Button name="登録" variant="contained" onClick={handleOpen} />
+      <Button name='登録' variant='contained' onClick={handleOpen} />
       <Dialog
         open={open}
-        title="TODO登録"
-        submitButtonName="登録"
+        title='TODO登録'
+        primaryButtonName='登録'
         onClose={handleClose}
-        onSubmit={handleSubmit(onSubmit)}
-        loading={isPendingCreateTodo}
+        onPrimaryClick={handleSubmit(onSubmit)}
+        primaryLoading={isPendingCreateTodo}
       >
         <TextField
           {...titleField}
           slotProps={{ htmlInput: { ref: titleRef } }}
-          label="タイトル"
+          label='タイトル'
           error={!!errors.title && (touchedFields.title || isSubmitted)}
           helperText={touchedFields.title || isSubmitted ? errors.title?.message : undefined}
           fullWidth
@@ -69,7 +69,7 @@ export const CreateTodo = () => {
         <TextField
           {...detailField}
           slotProps={{ htmlInput: { ref: detailRef } }}
-          label="詳細"
+          label='詳細'
           error={!!errors.detail && (touchedFields.detail || isSubmitted)}
           helperText={touchedFields.detail || isSubmitted ? errors.detail?.message : undefined}
           fullWidth
