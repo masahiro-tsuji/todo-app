@@ -1,7 +1,7 @@
 'use client';
+import { Typography } from '@mui/material';
 import React, { createContext, type ReactNode, useCallback, useContext, useState } from 'react';
 import { Dialog } from '../parts';
-import { Typography } from '@mui/material';
 
 type DialogActionType = {
   onClickOk?: () => void;
@@ -41,7 +41,7 @@ export const ConfirmDialogProvider = ({ children }: { children: React.ReactNode 
   return (
     <ConfirmContext.Provider value={confirm}>
       {children}
-      <Dialog title='確認' open={!!confirmState} onClose={onClickClose} onPrimaryClick={onClickOk}>
+      <Dialog title='確認' open={!!confirmState} onClose={onClickClose} onPrimaryClick={onClickOk} size='sm'>
         {typeof confirmState?.message === 'string' ? (
           <Typography>{confirmState?.message}</Typography>
         ) : (

@@ -2,10 +2,12 @@ import { signIn, signOut } from 'aws-amplify/auth';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { useConfirmDialogContext } from '@/components';
 
 export const useAuth = () => {
   const queryClient = useQueryClient();
   const router = useRouter();
+  const { displayConfirm } = useConfirmDialogContext();
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -31,17 +33,22 @@ export const useAuth = () => {
   };
 
   const logout = async () => {
-    setErrorMessage('');
-    setIsLoading(true);
-    try {
-      await signOut(); // NOTE: 全端末でログアウトするなら、global:true
-      queryClient.clear();
-      router.replace('/login');
-    } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : 'ログアウトに失敗しました');
-    } finally {
-      setIsLoading(false);
-    }
+    displayConfirm({
+      content: 'ログアウトしますか？',
+      onClickOk: async () => {
+        setErrorMessage('');
+        setIsLoading(true);
+        try {
+          await signOut(); // NOTE: 全端末でログアウトするなら、global:true
+          queryClient.clear();
+          router.replace('/login');
+        } catch (error) {
+          setErrorMessage(error instanceof Error ? error.message : 'ログアウトに失敗しました');
+        } finally {
+          setIsLoading(false);
+        }
+      },
+    });
   };
 
   return { isLoading, errorMessage, login, logout };
