@@ -1,0 +1,49 @@
+name: INFRA CD（Deploy）
+
+on:
+  workflow_call:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  infra-deploy:
+    name: INFRA - Deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 30 # 3スタックデプロイのためCIより長めに設定
+    concurrency:
+      group: infra-deploy
+      cancel-in-progress: true
+    steps:
+      # コードのチェックアウト
+      - name: Checkout code
+        uses: actions/checkout@v6
+      # NodeJsのセットアップ
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: | 
+            infra/package-lock.json
+            backend/todos/package-lock.json
+      # node_modulesのインストール
+      - name: Run npm ci in infra
+        working-directory: infra
+        run: npm ci
+      - name: Run npm ci in backend
+        working-directory: backend/todos
+        run: npm ci
+      # AWS認証情報の設定 (Settingsで設定した値を使用)
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+      # CDKのデプロイ
+      - name: Run CDK Deploy
+        working-directory: infra
+        # --require-approval never は、CDKデプロイ時にセキュリティ関連変更（IAMポリシー等）の自動承認を行い、
+        # 手動での承認をスキップするオプション
+        run: npm run cdk -- deploy --all --require-approval never
