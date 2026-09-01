@@ -63,6 +63,9 @@ jobs:
     name: Develop Branch Deploy
     needs: infra-test-and-build
     if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    permissions:
+      id-token: write
+      contents: read
     uses: ./.github/workflows/infra-cd.yml
     secrets: inherit # Secretsを呼び出し側に継承する
   
