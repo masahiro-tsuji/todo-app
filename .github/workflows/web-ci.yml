@@ -54,13 +54,13 @@ jobs:
               with:
                 name: web-out
                 path: web/out/
-  web-deploy:
-    name: WEB - Deploy
-    needs: web-test-and-build
-    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
-    permissions:
-      id-token: write
-      contents: read
-    uses: ./.github/workflows/web-cd.yml
-    secrets: inherit
-    
+    web-deploy:
+      name: WEB - Deploy
+      needs: web-test-and-build
+      if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+      permissions:
+        id-token: write
+        contents: read
+      uses: ./.github/workflows/web-cd.yml
+      secrets: inherit
+      
