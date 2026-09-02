@@ -44,5 +44,9 @@ export class FrontendStack extends cdk.Stack {
       description: 'フロントの公開 URL',
     });
     new cdk.CfnOutput(this, 'S3BucketName', { value: bucket.bucketName, description: 'S3バケット名' });
+    new cdk.CfnOutput(this, 'DistributionId', {
+      value: distribution.distributionId,
+      description: 'CloudFront ディストリビューション ID',
+    });
   }
 }

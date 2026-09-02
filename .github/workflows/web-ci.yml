@@ -1,4 +1,4 @@
-name: WEB CI (Test, Build)
+name: WEB CI (Test, Build) / CD
 
 on:
   push:
@@ -15,6 +15,10 @@ jobs:
     web-test-and-build:
         name: Web Container - Test and Build
         runs-on: ubuntu-latest
+        env:
+          NEXT_PUBLIC_COGNITO_USER_POOL_ID: ${{ vars.NEXT_PUBLIC_COGNITO_USER_POOL_ID }}
+          NEXT_PUBLIC_COGNITO_CLIENT_ID: ${{ vars.NEXT_PUBLIC_COGNITO_CLIENT_ID }}
+          NEXT_PUBLIC_BASE_URL: ${{ vars.NEXT_PUBLIC_BASE_URL }}
         timeout-minutes: 10
         steps:
             # コードのチェックアウト
@@ -43,3 +47,20 @@ jobs:
             - name: Run Build
               working-directory: web
               run: npm run build
+            # アーティファクトのアップロード
+            - name: Upload web artifact
+              uses: actions/upload-artifact@v4
+              if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+              with:
+                name: web-out
+                path: web/out/
+  web-deploy:
+    name: WEB - Deploy
+    needs: web-test-and-build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    permissions:
+      id-token: write
+      contents: read
+    uses: ./.github/workflows/web-cd.yml
+    secrets: inherit
+    
