@@ -1,12 +1,30 @@
 'use client';
 
-import { Box } from '@mui/material';
+import { Box, Link } from '@mui/material';
+import { red } from '@mui/material/colors';
 import { fetchAuthSession } from 'aws-amplify/auth';
+import NextLink from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Button } from '@/components';
-import { isGuestPath } from '@/constants/routes';
+import { isGuestPath, SETTINGS_PATH } from '@/constants/routes';
 import { useAuth } from '@/hooks';
+import { theme } from '../../../theme';
+
+const headerLinkSx = {
+  color: '#fff',
+  fontSize: theme.typography.fontSize ?? 14,
+  fontWeight: 'bold',
+  cursor: 'pointer',
+  '&:hover': { color: theme.blue.light },
+};
+
+const logoutLinkSx = {
+  color: red[200],
+  fontSize: theme.typography.fontSize ?? 14,
+  fontWeight: 'bold',
+  cursor: 'pointer',
+  '&:hover': { color: red[100] },
+};
 
 export const AppHeader = () => {
   const pathname = usePathname();
@@ -30,8 +48,37 @@ export const AppHeader = () => {
   if (isChecking || !isAuthenticated || isGuestPath(pathname)) return null;
 
   return (
-    <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 2 }}>
-      <Button name='ログアウト' variant='outlined' color='error' onClick={logout} loading={isLoading} />
+    <Box
+      component='header'
+      sx={{
+        display: 'flex',
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+        gap: 3,
+        px: 2,
+        py: 1.5,
+        bgcolor: theme.blue.dark,
+      }}
+    >
+      <Link component={NextLink} href={SETTINGS_PATH} underline='hover' sx={headerLinkSx}>
+        設定
+      </Link>
+      <Link
+        component='button'
+        type='button'
+        underline='hover'
+        onClick={logout}
+        disabled={isLoading}
+        sx={{
+          ...logoutLinkSx,
+          border: 'none',
+          bgcolor: 'transparent',
+          fontFamily: 'inherit',
+          opacity: isLoading ? 0.6 : 1,
+        }}
+      >
+        ログアウト
+      </Link>
     </Box>
   );
 };
