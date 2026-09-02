@@ -109,15 +109,4 @@ export const theme = createTheme({
     warning: { fontSize: DEFAULT_FONT_SIZE, color: yellow[500] },
     button: { fontSize: DEFAULT_FONT_SIZE }, // ボタンの文字サイズ
   },
-
-  /** パレット */
-  palette: {
-    /** 灰色のボタン用に追加（図検） */
-    customGray: {
-      light: grey[200],
-      main: grey[600],
-      dark: grey[800],
-      contrastText: '#ffffff',
-    },
-  },
 });
