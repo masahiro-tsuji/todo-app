@@ -1,4 +1,5 @@
 import { Box, Paper, type SxProps, Typography } from '@mui/material';
+import { MfaSettings } from '@/features/mfa-settings';
 
 const boxProps: SxProps = {
   display: 'flex',
@@ -14,6 +15,7 @@ export default function SettingsPage() {
         <Typography variant='h1' component='h1' sx={{ textAlign: 'center' }}>
           設定
         </Typography>
+        <MfaSettings />
       </Paper>
     </Box>
   );
