@@ -1,7 +1,6 @@
 'use client';
 
 import { Box, Link } from '@mui/material';
-import { red } from '@mui/material/colors';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import NextLink from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -11,7 +10,7 @@ import { useAuth } from '@/hooks';
 import { theme } from '../../../theme';
 
 const headerLinkSx = {
-  color: '#fff',
+  color: theme.header.link,
   fontSize: theme.typography.fontSize ?? 14,
   fontWeight: 'bold',
   cursor: 'pointer',
@@ -19,11 +18,11 @@ const headerLinkSx = {
 };
 
 const logoutLinkSx = {
-  color: red[200],
+  color: theme.red.main,
   fontSize: theme.typography.fontSize ?? 14,
   fontWeight: 'bold',
   cursor: 'pointer',
-  '&:hover': { color: red[100] },
+  '&:hover': { color: theme.red.light },
 };
 
 export const AppHeader = () => {
