@@ -47,6 +47,27 @@ describe('Login コンポーネントのテスト', () => {
     expect(screen.getByRole('button', { name: 'ログイン' })).toBeInTheDocument();
   });
 
+  test('MFA コード入力が必要な場合 /mfa-verify へ遷移すること', async () => {
+    const { signIn } = jest.requireMock('aws-amplify/auth');
+    signIn.mockResolvedValue({
+      isSignedIn: false,
+      nextStep: { signInStep: 'CONFIRM_SIGN_IN_WITH_TOTP_CODE' },
+    });
+
+    renderLogin();
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'ログイン' })).toBeInTheDocument();
+    });
+
+    await userEvent.type(screen.getByRole('textbox', { name: /メールアドレス/ }), 'user@example.com');
+    await userEvent.type(screen.getByLabelText(/パスワード/), 'password');
+    await userEvent.click(screen.getByRole('button', { name: 'ログイン' }));
+
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/mfa-verify');
+    });
+  });
+
   test('新パスワード設定が必要な場合 /new-password へ遷移すること', async () => {
     const { signIn } = jest.requireMock('aws-amplify/auth');
     signIn.mockResolvedValue({

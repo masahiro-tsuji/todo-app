@@ -19,6 +19,7 @@ export const useAuth = () => {
       const { isSignedIn, nextStep } = await signIn({ username: email, password });
       if (isSignedIn) router.replace('/list');
       else if (nextStep.signInStep === 'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED') router.push('/new-password');
+      else if (nextStep.signInStep === 'CONFIRM_SIGN_IN_WITH_TOTP_CODE') router.push('/mfa-verify');
       else setErrorMessage('ログインを完了できませんでした');
     } catch (error) {
       if (error instanceof Error && error.name === 'UserAlreadyAuthenticatedException') {
