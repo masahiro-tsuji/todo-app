@@ -1,20 +1,49 @@
 import '@testing-library/jest-dom';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ConfirmDialogProvider, MuiProvider } from '@/components';
+import { fetchMFAPreference, setUpTOTP, updateMFAPreference, verifyTOTPSetup } from 'aws-amplify/auth';
+import { ConfirmDialogProvider, MuiProvider, QueryProvider } from '@/components';
 import { MfaSettings } from '../index';
+
+jest.mock('aws-amplify/auth', () => ({
+  fetchMFAPreference: jest.fn(),
+  setUpTOTP: jest.fn(),
+  updateMFAPreference: jest.fn(),
+  verifyTOTPSetup: jest.fn(),
+}));
 
 const renderMfaSettings = () => {
   return render(
     <MuiProvider>
-      <ConfirmDialogProvider>
-        <MfaSettings />
-      </ConfirmDialogProvider>
+      <QueryProvider>
+        <ConfirmDialogProvider>
+          <MfaSettings />
+        </ConfirmDialogProvider>
+      </QueryProvider>
     </MuiProvider>,
   );
 };
 
+const getSetupDialog = () => screen.getByRole('dialog', { name: '多要素認証のセットアップ' });
+
 describe('MfaSettings コンポーネントのテスト', () => {
+  beforeEach(() => {
+    jest.mocked(fetchMFAPreference).mockResolvedValue({ enabled: [], preferred: undefined });
+    jest.mocked(setUpTOTP).mockResolvedValue({
+      sharedSecret: 'JBSWY3DPEHPK3PXP',
+      getSetupUri: () => new URL('otpauth://totp/Todo%20App?secret=JBSWY3DPEHPK3PXP&issuer=Todo%20App'),
+    });
+    jest.mocked(verifyTOTPSetup).mockResolvedValue(undefined);
+    jest.mocked(updateMFAPreference).mockImplementation(async ({ totp }) => {
+      if (totp === 'PREFERRED') {
+        jest.mocked(fetchMFAPreference).mockResolvedValue({ enabled: ['TOTP'], preferred: 'TOTP' });
+      }
+      if (totp === 'DISABLED') {
+        jest.mocked(fetchMFAPreference).mockResolvedValue({ enabled: ['TOTP'], preferred: undefined });
+      }
+    });
+  });
+
   test('多要素認証のスイッチが表示されること', async () => {
     renderMfaSettings();
 
@@ -27,70 +56,74 @@ describe('MfaSettings コンポーネントのテスト', () => {
   test('スイッチをONにするとトグルがONになりセットアップUIが表示されること', async () => {
     renderMfaSettings();
 
-    await userEvent.click(screen.getByRole('switch', { name: /現在.*無効/ }));
+    await userEvent.click(await screen.findByRole('switch', { name: /現在.*無効/ }));
 
     await waitFor(() => {
-      expect(screen.getByRole('switch', { name: /現在.*有効/ })).toBeChecked();
-      expect(screen.getByText('QRコード表示エリア')).toBeInTheDocument();
-      expect(screen.getByLabelText(/認証コード/)).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: '有効化' })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'キャンセル' })).toBeInTheDocument();
+      expect(screen.getByRole('switch', { name: /現在.*有効/, hidden: true })).toBeChecked();
+      const setupDialog = getSetupDialog();
+      expect(within(setupDialog).getByRole('img', { name: 'QRコード' })).toBeInTheDocument();
+      expect(within(setupDialog).getByLabelText(/認証コード/)).toBeInTheDocument();
+      expect(within(setupDialog).getByRole('button', { name: '有効化' })).toBeInTheDocument();
+      expect(within(setupDialog).getByRole('button', { name: 'キャンセル' })).toBeInTheDocument();
     });
   });
 
   test('キャンセルでセットアップUIが閉じトグルがOFFになること', async () => {
     renderMfaSettings();
 
-    await userEvent.click(screen.getByRole('switch', { name: /現在.*無効/ }));
+    await userEvent.click(await screen.findByRole('switch', { name: /現在.*無効/ }));
     await waitFor(() => {
-      expect(screen.getByText('QRコード表示エリア')).toBeInTheDocument();
+      expect(within(getSetupDialog()).getByRole('img', { name: 'QRコード' })).toBeInTheDocument();
     });
 
-    await userEvent.click(screen.getByRole('button', { name: 'キャンセル' }));
+    await userEvent.click(within(getSetupDialog()).getByRole('button', { name: 'キャンセル' }));
 
     await waitFor(() => {
-      expect(screen.queryByText('QRコード表示エリア')).not.toBeInTheDocument();
+      expect(screen.queryByRole('dialog', { name: '多要素認証のセットアップ' })).not.toBeInTheDocument();
       expect(screen.getByRole('switch', { name: /現在.*無効/ })).not.toBeChecked();
     });
-  });
-
-  test('セットアップ中にスイッチをOFFにするとセットアップUIが閉じること', async () => {
-    renderMfaSettings();
-
-    await userEvent.click(screen.getByRole('switch', { name: /現在.*無効/ }));
-    await waitFor(() => {
-      expect(screen.getByText('QRコード表示エリア')).toBeInTheDocument();
-    });
-
-    await userEvent.click(screen.getByRole('switch', { name: /現在.*有効/ }));
-
-    await waitFor(() => {
-      expect(screen.queryByText('QRコード表示エリア')).not.toBeInTheDocument();
-      expect(screen.getByRole('switch', { name: /現在.*無効/ })).not.toBeChecked();
-    });
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
   test('有効化後はスイッチがONになること', async () => {
     renderMfaSettings();
 
-    await userEvent.click(screen.getByRole('switch', { name: /現在.*無効/ }));
-    await userEvent.type(screen.getByLabelText(/認証コード/), '123456');
-    await userEvent.click(screen.getByRole('button', { name: '有効化' }));
+    await userEvent.click(await screen.findByRole('switch', { name: /現在.*無効/ }));
+    const setupDialog = await waitFor(() => getSetupDialog());
+    await userEvent.type(within(setupDialog).getByLabelText(/認証コード/), '123456');
+    await userEvent.click(within(setupDialog).getByRole('button', { name: '有効化' }));
 
     await waitFor(() => {
       expect(screen.getByText('有効')).toBeInTheDocument();
       expect(screen.getByRole('switch', { name: /現在.*有効/ })).toBeChecked();
-      expect(screen.queryByText('QRコード表示エリア')).not.toBeInTheDocument();
+      expect(screen.queryByRole('dialog', { name: '多要素認証のセットアップ' })).not.toBeInTheDocument();
     });
+    expect(verifyTOTPSetup).toHaveBeenCalledWith({ code: '123456' });
+    expect(updateMFAPreference).toHaveBeenCalledWith({ totp: 'PREFERRED' });
+  });
+
+  test('TOTP設定済みの場合はセットアップUIを表示せず有効化すること', async () => {
+    jest.mocked(fetchMFAPreference).mockResolvedValue({ enabled: ['TOTP'], preferred: undefined });
+    renderMfaSettings();
+
+    await userEvent.click(await screen.findByRole('switch', { name: /現在.*無効/ }));
+
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog', { name: '多要素認証のセットアップ' })).not.toBeInTheDocument();
+      expect(screen.getByRole('switch', { name: /現在.*有効/ })).toBeChecked();
+      expect(screen.queryByRole('img', { name: 'QRコード' })).not.toBeInTheDocument();
+    });
+    expect(setUpTOTP).not.toHaveBeenCalled();
+    expect(verifyTOTPSetup).not.toHaveBeenCalled();
+    expect(updateMFAPreference).toHaveBeenCalledWith({ totp: 'PREFERRED' });
   });
 
   test('有効化後にスイッチをOFFにすると確認ダイアログが表示されること', async () => {
     renderMfaSettings();
 
-    await userEvent.click(screen.getByRole('switch', { name: /現在.*無効/ }));
-    await userEvent.type(screen.getByLabelText(/認証コード/), '123456');
-    await userEvent.click(screen.getByRole('button', { name: '有効化' }));
+    await userEvent.click(await screen.findByRole('switch', { name: /現在.*無効/ }));
+    const setupDialog = await waitFor(() => getSetupDialog());
+    await userEvent.type(within(setupDialog).getByLabelText(/認証コード/), '123456');
+    await userEvent.click(within(setupDialog).getByRole('button', { name: '有効化' }));
 
     await waitFor(() => {
       expect(screen.getByRole('switch', { name: /現在.*有効/ })).toBeChecked();
@@ -98,7 +131,7 @@ describe('MfaSettings コンポーネントのテスト', () => {
 
     await userEvent.click(screen.getByRole('switch', { name: /現在.*有効/ }));
 
-    const dialog = await screen.findByRole('dialog');
-    expect(within(dialog).getByText('多要素認証を無効にしますか？')).toBeInTheDocument();
+    const confirmDialog = await screen.findByRole('dialog');
+    expect(within(confirmDialog).getByText('多要素認証を無効にしますか？')).toBeInTheDocument();
   });
 });

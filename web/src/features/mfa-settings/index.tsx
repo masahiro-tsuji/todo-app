@@ -1,62 +1,79 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import QrCode2Icon from '@mui/icons-material/QrCode2';
-import { Box, Divider, FormControlLabel, Switch, Typography } from '@mui/material';
-import { type ChangeEvent, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { Button, TextField, useConfirmDialogContext } from '@/components';
+import { Box, CircularProgress, Divider, FormControlLabel, Typography } from '@mui/material';
+import { type ChangeEvent, useEffect } from 'react';
+import { FormProvider, useForm } from 'react-hook-form';
+import { Switch, useConfirmDialogContext } from '@/components';
+import { useDialogState, useGetMfaState, useSetupTotp, useUpdateMfaPreference, useVerifyTotpSetup } from '@/hooks';
+import { MfaSetupDialog } from './components/MfaSetupDialog';
 import { type MfaSetupForm as MfaSetupFormValues, mfaSetupFormSchema } from './types';
+
+const TOTP_APP_NAME = 'Todo App';
+
+type MfaSwitchLabelProps = {
+  checked: boolean;
+  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+};
+
+const MfaSwitchLabel = ({ checked, onChange }: MfaSwitchLabelProps) => (
+  <FormControlLabel
+    labelPlacement='start'
+    control={<Switch checked={checked} onChange={onChange} />}
+    label={
+      <>
+        現在：
+        <Box component='span' sx={{ fontWeight: 'bold' }}>
+          {checked ? '有効' : '無効'}
+        </Box>
+      </>
+    }
+    sx={{ m: 0 }}
+  />
+);
 
 export const MfaSettings = () => {
   const { displayConfirm } = useConfirmDialogContext();
-  const [isMfaEnabled, setIsMfaEnabled] = useState(false);
-  const [isSetupVisible, setIsSetupVisible] = useState(false);
+  const { isMfaEnabled, shouldTotpSetup, isPendingMfaState } = useGetMfaState();
+  const { isPendingUpdateMfaPreference, updateMfaPreference } = useUpdateMfaPreference();
+  const { isPendingVerifyTotpSetup, verifyTotpSetup } = useVerifyTotpSetup();
+  const { isPendingSetupTotp, setupTotp, totpSetupDetails, resetSetupTotp } = useSetupTotp();
+  const { isOpen: isSetupDialogOpen, onOpen: openSetupDialog, onClose: closeSetupDialog } = useDialogState();
+  const isSwitchLoading = isPendingMfaState || isPendingUpdateMfaPreference;
+  const setupTotpUri = totpSetupDetails?.getSetupUri(TOTP_APP_NAME).href;
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<MfaSetupFormValues>({
+  const methods = useForm<MfaSetupFormValues>({
     mode: 'all',
     resolver: zodResolver(mfaSetupFormSchema),
     defaultValues: { code: '' },
   });
+  const { handleSubmit, reset } = methods;
 
-  const isSwitchChecked = isMfaEnabled || isSetupVisible;
+  const isSwitchChecked = isMfaEnabled || isSetupDialogOpen;
 
-  const handleSwitchChange = (event: ChangeEvent<HTMLInputElement>) => {
-    if (event.target.checked) {
-      setIsSetupVisible(true);
-      return;
-    }
+  useEffect(() => {
+    if (isSetupDialogOpen) setupTotp();
+  }, [isSetupDialogOpen, setupTotp]);
 
-    if (isMfaEnabled) {
-      displayConfirm({
-        content: '多要素認証を無効にしますか？',
-        onClickOk: () => {
-          setIsMfaEnabled(false);
-          setIsSetupVisible(false);
-          reset();
-        },
-      });
-      return;
-    }
-
-    setIsSetupVisible(false);
+  const onCloseSetupDialog = () => {
     reset();
+    resetSetupTotp();
+    closeSetupDialog();
   };
 
-  const handleCancelSetup = () => {
-    setIsSetupVisible(false);
-    reset();
+  const onChangeEnableSwitch = async (event: ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.checked) {
+      const onClickOk = async () => await updateMfaPreference(false);
+      displayConfirm({ content: '多要素認証を無効にしますか？', onClickOk });
+      return;
+    }
+    if (shouldTotpSetup) openSetupDialog();
+    else await updateMfaPreference(true);
   };
 
-  const onEnable = (_values: MfaSetupFormValues) => {
-    setIsMfaEnabled(true);
-    setIsSetupVisible(false);
-    reset();
+  const onEnable = async ({ code }: MfaSetupFormValues) => {
+    await verifyTotpSetup(code);
+    await updateMfaPreference(true, { onSuccess: onCloseSetupDialog });
   };
 
   return (
@@ -68,66 +85,23 @@ export const MfaSettings = () => {
       <Typography variant='body2' sx={{ mb: 1, color: 'text.secondary' }}>
         認証アプリの6桁コードを使って、ログイン時のセキュリティを強化できます。
       </Typography>
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <FormControlLabel
-          labelPlacement='start'
-          control={<Switch checked={isSwitchChecked} onChange={handleSwitchChange} />}
-          label={
-            <>
-              現在：
-              <Box component='span' sx={{ fontWeight: 'bold' }}>
-                {isSwitchChecked ? '有効' : '無効'}
-              </Box>
-            </>
-          }
-          sx={{ m: 0 }}
-        />
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minHeight: 38 }}>
+        {isSwitchLoading ? (
+          <CircularProgress size={24} aria-label='多要素認証の状態を読み込み中' />
+        ) : (
+          <MfaSwitchLabel checked={isSwitchChecked} onChange={onChangeEnableSwitch} />
+        )}
       </Box>
-
-      {isSetupVisible && !isMfaEnabled && (
-        <Box
-          component='form'
-          onSubmit={handleSubmit(onEnable)}
-          sx={{ mt: 3, display: 'flex', flexDirection: 'column', gap: 2 }}
-        >
-          <Typography variant='body2'>
-            認証アプリで以下のQRコードを読み取り、表示された6桁のコードを入力してください。
-          </Typography>
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 1,
-              py: 3,
-              border: 1,
-              borderColor: 'divider',
-              borderRadius: 1,
-              bgcolor: 'background.paper',
-            }}
-          >
-            <QrCode2Icon sx={{ fontSize: 120, color: 'text.disabled' }} aria-hidden />
-            <Typography variant='body2' color='text.secondary'>
-              QRコード表示エリア
-            </Typography>
-          </Box>
-          <TextField
-            label='認証コード'
-            type='text'
-            inputMode='numeric'
-            autoComplete='one-time-code'
-            {...register('code')}
-            error={!!errors.code}
-            helperText={errors.code?.message}
-            fullWidth
-          />
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-            <Button name='キャンセル' variant='outlined' type='button' onClick={handleCancelSetup} />
-            <Button name='有効化' variant='contained' type='submit' />
-          </Box>
-        </Box>
-      )}
+      <FormProvider {...methods}>
+        <MfaSetupDialog
+          isOpen={isSetupDialogOpen}
+          isPending={isPendingVerifyTotpSetup || isPendingUpdateMfaPreference}
+          isPendingSetupTotp={isPendingSetupTotp}
+          onClose={onCloseSetupDialog}
+          onPrimaryClick={handleSubmit(onEnable)}
+          setupTotpUri={setupTotpUri}
+        />
+      </FormProvider>
     </Box>
   );
 };
