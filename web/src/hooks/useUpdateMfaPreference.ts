@@ -6,8 +6,7 @@ export const useUpdateMfaPreference = () => {
   const queryClient = useQueryClient();
 
   const { isPending, mutateAsync } = useMutation({
-    mutationFn: (enabled: boolean) =>
-      updateMFAPreference({ totp: enabled ? 'PREFERRED' : 'DISABLED' }),
+    mutationFn: (enabled: boolean) => updateMFAPreference({ totp: enabled ? 'PREFERRED' : 'DISABLED' }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: mfaStateQueryKey });
     },

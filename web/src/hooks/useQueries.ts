@@ -10,10 +10,7 @@ import {
 
 const options = { retry: false, refetchOnWindowFocus: false };
 
-export const useQueryDefault = <T>(
-  queryKey: string[],
-  queryFn: QueryFunction<T>,
-): UseQueryResult<T, unknown> => {
+export const useQueryDefault = <T>(queryKey: string[], queryFn: QueryFunction<T>): UseQueryResult<T, unknown> => {
   return useQuery({ queryKey, queryFn, ...options });
 };
 
