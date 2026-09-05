@@ -2,13 +2,14 @@ import '@testing-library/jest-dom';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { confirmSignIn } from 'aws-amplify/auth';
-import { MuiProvider } from '@/components';
+import { ConfirmDialogProvider, MuiProvider, QueryProvider } from '@/components';
 import { NewPassword } from '../index';
 
 const mockReplace = jest.fn();
 
 jest.mock('next/navigation', () => ({
   useRouter: () => ({ replace: mockReplace, push: jest.fn() }),
+  usePathname: () => '/new-password',
   useServerInsertedHTML: () => {},
 }));
 
@@ -19,9 +20,13 @@ jest.mock('aws-amplify/auth', () => ({
 
 const renderNewPassword = () => {
   return render(
-    <MuiProvider>
-      <NewPassword />
-    </MuiProvider>,
+    <QueryProvider>
+      <ConfirmDialogProvider>
+        <MuiProvider>
+          <NewPassword />
+        </MuiProvider>
+      </ConfirmDialogProvider>
+    </QueryProvider>,
   );
 };
 

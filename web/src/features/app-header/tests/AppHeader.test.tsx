@@ -47,35 +47,38 @@ describe('AppHeader コンポーネントのテスト', () => {
     jest.mocked(signOut).mockResolvedValue(undefined);
   });
 
-  test('/login ではログアウトボタンが表示されないこと', async () => {
+  test('/login ではヘッダーメニューが表示されないこと', async () => {
     mockPathname.mockReturnValue('/login');
 
     renderAppHeader();
 
     await waitFor(() => {
+      expect(screen.queryByRole('link', { name: '設定' })).not.toBeInTheDocument();
       expect(screen.queryByRole('button', { name: 'ログアウト' })).not.toBeInTheDocument();
     });
   });
 
-  test('未ログイン時はログアウトボタンが表示されないこと', async () => {
+  test('未ログイン時はヘッダーメニューが表示されないこと', async () => {
     renderAppHeader();
 
     await waitFor(() => {
+      expect(screen.queryByRole('link', { name: '設定' })).not.toBeInTheDocument();
       expect(screen.queryByRole('button', { name: 'ログアウト' })).not.toBeInTheDocument();
     });
   });
 
-  test('/list かつログイン中はログアウトボタンが表示されること', async () => {
+  test('/list かつログイン中は設定とログアウトのテキストメニューが表示されること', async () => {
     jest.mocked(fetchAuthSession).mockResolvedValue(authenticatedSession);
 
     renderAppHeader();
 
     await waitFor(() => {
+      expect(screen.getByRole('link', { name: '設定' })).toHaveAttribute('href', '/settings');
       expect(screen.getByRole('button', { name: 'ログアウト' })).toBeInTheDocument();
     });
   });
 
-  test('ログアウトボタンクリックで signOut し /login へ遷移すること', async () => {
+  test('ログアウトリンククリックで signOut し /login へ遷移すること', async () => {
     jest.mocked(fetchAuthSession).mockResolvedValue(authenticatedSession);
 
     renderAppHeader();

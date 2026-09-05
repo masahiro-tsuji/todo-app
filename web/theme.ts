@@ -14,6 +14,12 @@ type ColorType = {
   dark: string;
 };
 
+/** ヘッダーの色定義 */
+type HeaderColorType = {
+  /** メニューリンクの文字色 */
+  link: string;
+};
+
 /** Material-UIのテーマ拡張定義 */
 declare module '@mui/material/styles' {
   /** テーマの型定義 */
@@ -26,6 +32,10 @@ declare module '@mui/material/styles' {
     green: ColorType;
     /** グレー色の定義 */
     grey: ColorType;
+    /** 赤色の定義 */
+    red: ColorType;
+    /** ヘッダーの色定義 */
+    header: HeaderColorType;
     /** 必須項目の色 */
     required: string;
   }
@@ -40,6 +50,10 @@ declare module '@mui/material/styles' {
     green: ColorType;
     /** グレー色の定義 */
     grey: ColorType;
+    /** 赤色の定義 */
+    red: ColorType;
+    /** ヘッダーの色定義 */
+    header: HeaderColorType;
     /** 必須項目の色 */
     required: string;
   }
@@ -100,6 +114,8 @@ export const theme = createTheme({
   cyan: { light: cyan[100], main: cyan[500], dark: cyan[700] },
   green: { light: green[100], main: green[500], dark: green[700] },
   grey: { light: grey[100], main: grey[500], dark: grey[700] },
+  red: { light: red[100], main: red[200], dark: red[300] },
+  header: { link: '#ffffff' },
   required: yellow[100],
 
   /** デフォルトの文字サイズ */

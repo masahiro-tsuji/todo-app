@@ -2,7 +2,7 @@
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "biomejs.biome",
   "editor.codeActionsOnSave": {
-    "source.fixAll.biome": "explicit",
+    "quickfix.biome": "explicit",
     "source.organizeImports.biome": "explicit"
   },
   "[javascript]": {
@@ -23,5 +23,6 @@
   "[jsonc]": {
     "editor.defaultFormatter": "biomejs.biome"
   },
-  "biome.lsp.bin": "./web/node_modules/@biomejs/biome/bin/biome"
+  "biome.lsp.bin": "${workspaceFolder}/web/node_modules/@biomejs/biome/bin/biome",
+  "biome.requireConfiguration": true
 }

@@ -3,7 +3,7 @@
 import { fetchAuthSession } from 'aws-amplify/auth';
 import { usePathname, useRouter } from 'next/navigation';
 import { type ReactNode, useEffect, useState } from 'react';
-import { DEFAULT_AUTH_PATH, DEFAULT_GUEST_PATH, isGuestPath, isProtectedPath } from '@/constants/routes';
+import { isGuestPath, isProtectedPath, routes } from '@/constants/routes';
 import { LoadingIndicator } from '../parts';
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -23,19 +23,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     fetchAuthSession()
       .then((session) => {
         const isAuthenticated = !!session.tokens?.idToken;
-
-        if (isProtectedPath(pathname) && !isAuthenticated) {
-          router.replace(DEFAULT_GUEST_PATH);
-          return;
-        }
-        if (isGuestPath(pathname) && isAuthenticated) {
-          router.replace(DEFAULT_AUTH_PATH);
-          return;
-        }
-        setIsChecking(false);
+        if (isProtectedPath(pathname) && !isAuthenticated) router.replace(routes.login);
+        else if (isGuestPath(pathname) && isAuthenticated) router.replace(routes.list);
+        else setIsChecking(false);
       })
       .catch(() => {
-        if (isProtectedPath(pathname)) router.replace(DEFAULT_GUEST_PATH);
+        if (isProtectedPath(pathname)) router.replace(routes.login);
         else setIsChecking(false);
       });
   }, [pathname, router]);
