@@ -3,10 +3,11 @@ import { confirmSignIn, signIn, signOut } from 'aws-amplify/auth';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useConfirmDialogContext } from '@/components';
+import { routes } from '@/constants/routes';
 
 const CONFIRM_SIGN_IN_FALLBACK_MESSAGES: Record<string, string> = {
-  '/new-password': '新パスワードの設定に失敗しました',
-  '/mfa-verify': '認証コードの確認に失敗しました',
+  [routes.newPassword]: '新パスワードの設定に失敗しました',
+  [routes.mfaVerify]: '認証コードの確認に失敗しました',
 };
 
 export const useAuth = () => {
@@ -23,9 +24,9 @@ export const useAuth = () => {
 
     try {
       const { isSignedIn, nextStep } = await signIn({ username: email, password });
-      if (isSignedIn) router.replace('/list');
-      else if (nextStep.signInStep === 'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED') router.push('/new-password');
-      else if (nextStep.signInStep === 'CONFIRM_SIGN_IN_WITH_TOTP_CODE') router.push('/mfa-verify');
+      if (isSignedIn) router.replace(routes.list);
+      else if (nextStep.signInStep === 'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED') router.push(routes.newPassword);
+      else if (nextStep.signInStep === 'CONFIRM_SIGN_IN_WITH_TOTP_CODE') router.push(routes.mfaVerify);
       else setErrorMessage('ログインを完了できませんでした');
     } catch (error) {
       if (error instanceof Error && error.name === 'UserAlreadyAuthenticatedException') {
@@ -47,7 +48,7 @@ export const useAuth = () => {
 
     try {
       const { isSignedIn } = await confirmSignIn({ challengeResponse });
-      if (isSignedIn) router.replace('/list');
+      if (isSignedIn) router.replace(routes.list);
       else setErrorMessage('ログインを完了できませんでした');
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : fallbackErrorMessage);
@@ -65,7 +66,7 @@ export const useAuth = () => {
         try {
           await signOut(); // NOTE: 全端末でログアウトするなら、global:true
           queryClient.clear();
-          router.replace('/login');
+          router.replace(routes.login);
         } catch (error) {
           setErrorMessage(error instanceof Error ? error.message : 'ログアウトに失敗しました');
         } finally {

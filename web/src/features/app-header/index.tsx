@@ -5,7 +5,7 @@ import { fetchAuthSession } from 'aws-amplify/auth';
 import NextLink from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { isGuestPath, SETTINGS_PATH } from '@/constants/routes';
+import { isGuestPath, routes } from '@/constants/routes';
 import { useAuth } from '@/hooks';
 import { theme } from '../../../theme';
 
@@ -59,7 +59,7 @@ export const AppHeader = () => {
         bgcolor: theme.blue.dark,
       }}
     >
-      <Link component={NextLink} href={SETTINGS_PATH} underline='hover' sx={headerLinkSx}>
+      <Link component={NextLink} href={routes.settings} underline='hover' sx={headerLinkSx}>
         設定
       </Link>
       <Link
