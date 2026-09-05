@@ -5,11 +5,11 @@ import { Box, Link, Paper, TextField, Typography } from '@mui/material';
 import NextLink from 'next/link';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components';
-import { useMfaVerify } from './hooks/useMfaVerify';
+import { useAuth } from '@/hooks';
 import { type MfaVerifyForm as MfaVerifyFormValues, mfaVerifyFormSchema } from './types';
 
 export const MfaVerify = () => {
-  const { errorMessage, isSubmitting, verifyMfa } = useMfaVerify();
+  const { confirmSignInStep, errorMessage, isLoading } = useAuth();
 
   const {
     register,
@@ -22,7 +22,7 @@ export const MfaVerify = () => {
   });
 
   const onSubmit = async ({ code }: MfaVerifyFormValues) => {
-    await verifyMfa(code);
+    await confirmSignInStep(code);
   };
 
   return (
@@ -49,7 +49,7 @@ export const MfaVerify = () => {
             {errorMessage}
           </Typography>
         )}
-        <Button name='確認' type='submit' variant='contained' fullWidth disabled={isSubmitting} />
+        <Button name='確認' type='submit' variant='contained' fullWidth disabled={isLoading} />
         {errorMessage && (
           <Link component={NextLink} href='/login' variant='body2' sx={{ textAlign: 'center' }}>
             ログイン画面へ戻る

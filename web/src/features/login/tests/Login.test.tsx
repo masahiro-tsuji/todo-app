@@ -9,6 +9,7 @@ const mockPush = jest.fn();
 
 jest.mock('next/navigation', () => ({
   useRouter: () => ({ replace: mockReplace, push: mockPush }),
+  usePathname: () => '/login',
   useServerInsertedHTML: () => {},
 }));
 

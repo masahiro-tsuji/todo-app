@@ -2,18 +2,14 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Box, Link, Paper, TextField, Typography } from '@mui/material';
-import { confirmSignIn } from 'aws-amplify/auth';
 import NextLink from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components';
+import { useAuth } from '@/hooks';
 import { type NewPasswordForm as NewPasswordFormValues, newPasswordFormSchema } from './types';
 
 export const NewPassword = () => {
-  const router = useRouter();
-  const [errorMessage, setErrorMessage] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { confirmSignInStep, errorMessage, isLoading } = useAuth();
 
   const {
     register,
@@ -26,17 +22,7 @@ export const NewPassword = () => {
   });
 
   const onSubmit = async ({ newPassword }: NewPasswordFormValues) => {
-    setErrorMessage('');
-    setIsSubmitting(true);
-
-    try {
-      const { isSignedIn } = await confirmSignIn({ challengeResponse: newPassword });
-      if (isSignedIn) router.replace('/list');
-    } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : '新パスワードの設定に失敗しました');
-    } finally {
-      setIsSubmitting(false);
-    }
+    await confirmSignInStep(newPassword);
   };
 
   return (
@@ -59,7 +45,7 @@ export const NewPassword = () => {
             {errorMessage}
           </Typography>
         )}
-        <Button name='パスワードを設定' type='submit' variant='contained' fullWidth disabled={isSubmitting} />
+        <Button name='パスワードを設定' type='submit' variant='contained' fullWidth disabled={isLoading} />
         {errorMessage && (
           <Link component={NextLink} href='/login' variant='body2' sx={{ textAlign: 'center' }}>
             ログイン画面へ戻る

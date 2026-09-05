@@ -1,11 +1,17 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { signIn, signOut } from 'aws-amplify/auth';
-import { useRouter } from 'next/navigation';
+import { confirmSignIn, signIn, signOut } from 'aws-amplify/auth';
+import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useConfirmDialogContext } from '@/components';
 
+const CONFIRM_SIGN_IN_FALLBACK_MESSAGES: Record<string, string> = {
+  '/new-password': '新パスワードの設定に失敗しました',
+  '/mfa-verify': '認証コードの確認に失敗しました',
+};
+
 export const useAuth = () => {
   const queryClient = useQueryClient();
+  const pathname = usePathname();
   const router = useRouter();
   const { displayConfirm } = useConfirmDialogContext();
   const [errorMessage, setErrorMessage] = useState('');
@@ -33,6 +39,23 @@ export const useAuth = () => {
     }
   };
 
+  const confirmSignInStep = async (challengeResponse: string) => {
+    setErrorMessage('');
+    setIsLoading(true);
+
+    const fallbackErrorMessage = CONFIRM_SIGN_IN_FALLBACK_MESSAGES[pathname] ?? 'ログインを完了できませんでした';
+
+    try {
+      const { isSignedIn } = await confirmSignIn({ challengeResponse });
+      if (isSignedIn) router.replace('/list');
+      else setErrorMessage('ログインを完了できませんでした');
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : fallbackErrorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const logout = async () => {
     displayConfirm({
       content: 'ログアウトしますか？',
@@ -52,5 +75,5 @@ export const useAuth = () => {
     });
   };
 
-  return { isLoading, errorMessage, login, logout };
+  return { isLoading, errorMessage, login, confirmSignInStep, logout };
 };
