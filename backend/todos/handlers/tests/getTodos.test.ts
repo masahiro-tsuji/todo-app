@@ -27,7 +27,10 @@ describe('一覧取得のテスト', () => {
     const responseBody = JSON.parse(response?.body ?? '');
     expect(mockSend).toHaveBeenCalledWith(
       expect.objectContaining({
-        input: expect.objectContaining({ ExpressionAttributeValues: { ':userId': 'demo-user-id' } }),
+        input: expect.objectContaining({
+          ExpressionAttributeValues: { ':userId': 'demo-user-id' },
+          FilterExpression: 'attribute_not_exists(deletedAt)',
+        }),
       }),
     );
     expect(response.statusCode).toBe(HttpStatus.OK);
