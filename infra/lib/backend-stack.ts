@@ -71,6 +71,7 @@ export class BackendStack extends cdk.Stack {
           apigatewayv2.CorsHttpMethod.OPTIONS,
           apigatewayv2.CorsHttpMethod.POST,
           apigatewayv2.CorsHttpMethod.PATCH,
+          apigatewayv2.CorsHttpMethod.DELETE,
         ],
       },
     });
@@ -82,5 +83,21 @@ export class BackendStack extends cdk.Stack {
       integration: todosIntegration,
     });
     httpApi.addRoutes({ methods: [apigatewayv2.HttpMethod.PATCH], path: '/todos/{id}', integration: todosIntegration });
+    httpApi.addRoutes({ methods: [apigatewayv2.HttpMethod.GET], path: '/todos/trash', integration: todosIntegration });
+    httpApi.addRoutes({
+      methods: [apigatewayv2.HttpMethod.POST],
+      path: '/todos/{id}/restore',
+      integration: todosIntegration,
+    });
+    httpApi.addRoutes({
+      methods: [apigatewayv2.HttpMethod.DELETE],
+      path: '/todos/{id}',
+      integration: todosIntegration,
+    });
+    httpApi.addRoutes({
+      methods: [apigatewayv2.HttpMethod.DELETE],
+      path: '/todos/{id}/permanent-delete',
+      integration: todosIntegration,
+    });
   }
 }

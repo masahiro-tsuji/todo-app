@@ -48,6 +48,7 @@ exports[`BackendStackのテスト BackendStackのSnapshotテスト 1`] = `
             "OPTIONS",
             "POST",
             "PATCH",
+            "DELETE",
           ],
           "AllowOrigins": [
             "*",
@@ -92,6 +93,128 @@ exports[`BackendStackのテスト BackendStackのSnapshotテスト 1`] = `
         "Name": "CognitoAuthorizer",
       },
       "Type": "AWS::ApiGatewayV2::Authorizer",
+    },
+    "TodoApiDELETEtodosid5D6154B0": {
+      "Properties": {
+        "ApiId": {
+          "Ref": "TodoApi145E2E30",
+        },
+        "AuthorizationType": "JWT",
+        "AuthorizerId": {
+          "Ref": "TodoApiCognitoAuthorizer76D497FB",
+        },
+        "RouteKey": "DELETE /todos/{id}",
+        "Target": {
+          "Fn::Join": [
+            "",
+            [
+              "integrations/",
+              {
+                "Ref": "TodoApiGETtodostodosIntegration0D4F3125",
+              },
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::ApiGatewayV2::Route",
+    },
+    "TodoApiDELETEtodosidpermanentdelete732BB8BD": {
+      "Properties": {
+        "ApiId": {
+          "Ref": "TodoApi145E2E30",
+        },
+        "AuthorizationType": "JWT",
+        "AuthorizerId": {
+          "Ref": "TodoApiCognitoAuthorizer76D497FB",
+        },
+        "RouteKey": "DELETE /todos/{id}/permanent-delete",
+        "Target": {
+          "Fn::Join": [
+            "",
+            [
+              "integrations/",
+              {
+                "Ref": "TodoApiGETtodostodosIntegration0D4F3125",
+              },
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::ApiGatewayV2::Route",
+    },
+    "TodoApiDELETEtodosidpermanentdeletetodosIntegrationPermission8E02B023": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "TodosHandler090B72EA",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "TodoApi145E2E30",
+              },
+              "/*/*/todos/{id}/permanent-delete",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "TodoApiDELETEtodosidtodosIntegrationPermission9EB957B5": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "TodosHandler090B72EA",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "TodoApi145E2E30",
+              },
+              "/*/*/todos/{id}",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
     },
     "TodoApiDefaultStage5B325C9F": {
       "Properties": {
@@ -174,6 +297,67 @@ exports[`BackendStackのテスト BackendStackのSnapshotテスト 1`] = `
                 "Ref": "TodoApi145E2E30",
               },
               "/*/*/todos",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "TodoApiGETtodostrashCEBF309D": {
+      "Properties": {
+        "ApiId": {
+          "Ref": "TodoApi145E2E30",
+        },
+        "AuthorizationType": "JWT",
+        "AuthorizerId": {
+          "Ref": "TodoApiCognitoAuthorizer76D497FB",
+        },
+        "RouteKey": "GET /todos/trash",
+        "Target": {
+          "Fn::Join": [
+            "",
+            [
+              "integrations/",
+              {
+                "Ref": "TodoApiGETtodostodosIntegration0D4F3125",
+              },
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::ApiGatewayV2::Route",
+    },
+    "TodoApiGETtodostrashtodosIntegrationPermissionADFDB87D": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "TodosHandler090B72EA",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "TodoApi145E2E30",
+              },
+              "/*/*/todos/trash",
             ],
           ],
         },
@@ -264,6 +448,67 @@ exports[`BackendStackのテスト BackendStackのSnapshotテスト 1`] = `
         },
       },
       "Type": "AWS::ApiGatewayV2::Route",
+    },
+    "TodoApiPOSTtodosidrestoreD0D4218C": {
+      "Properties": {
+        "ApiId": {
+          "Ref": "TodoApi145E2E30",
+        },
+        "AuthorizationType": "JWT",
+        "AuthorizerId": {
+          "Ref": "TodoApiCognitoAuthorizer76D497FB",
+        },
+        "RouteKey": "POST /todos/{id}/restore",
+        "Target": {
+          "Fn::Join": [
+            "",
+            [
+              "integrations/",
+              {
+                "Ref": "TodoApiGETtodostodosIntegration0D4F3125",
+              },
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::ApiGatewayV2::Route",
+    },
+    "TodoApiPOSTtodosidrestoretodosIntegrationPermission831576B6": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "TodosHandler090B72EA",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "TodoApi145E2E30",
+              },
+              "/*/*/todos/{id}/restore",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
     },
     "TodoApiPOSTtodostodosIntegrationPermission8EC907A9": {
       "Properties": {
