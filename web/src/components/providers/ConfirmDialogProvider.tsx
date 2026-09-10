@@ -4,7 +4,7 @@ import React, { createContext, type ReactNode, useCallback, useContext, useState
 import { Dialog } from '../parts';
 
 type DialogActionType = {
-  onClickOk?: () => void | Promise<void>;
+  onClickOk?: () => unknown;
   onClose?: () => void;
 };
 
