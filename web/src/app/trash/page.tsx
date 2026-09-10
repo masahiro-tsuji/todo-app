@@ -16,7 +16,6 @@ const titleSx: SxProps = { textAlign: 'center', fontWeight: 'bold', fontSize: 18
 
 export default function TrashPage() {
   const handleRestore = (_id: string) => {};
-  const handlePermanentDelete = (_id: string) => {};
 
   return (
     <Box sx={boxProps}>
@@ -25,7 +24,7 @@ export default function TrashPage() {
           ゴミ箱
         </Typography>
         <Suspense fallback={<LoadingIndicator />}>
-          <TrashList onRestore={handleRestore} onPermanentDelete={handlePermanentDelete} />
+          <TrashList onRestore={handleRestore} />
         </Suspense>
       </Paper>
     </Box>

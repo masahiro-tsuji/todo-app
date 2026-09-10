@@ -2,20 +2,41 @@
 
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
-import { Box, IconButton } from '@mui/material';
+import { Box, IconButton, Typography } from '@mui/material';
 import type { GridColDef } from '@mui/x-data-grid';
 import { useCallback, useMemo } from 'react';
 import type { Todo } from '@/api/types/todo';
-import { DataGrid } from '@/components';
-import { useGetTrashTodos } from '@/hooks';
+import { DataGrid, useConfirmDialogContext } from '@/components';
+import { useGetTrashTodos, usePermanentDelete } from '@/hooks';
 import { formatToYYYYMMDDHHmm } from '@/utils';
 
-type Props = { onRestore: (id: string) => void; onPermanentDelete: (id: string) => void };
+const Message = ({ title }: { title: string }) => (
+  <Typography>
+    「{title}」を完全に削除しますか？
+    <br />
+    <Box component='span' sx={{ fontWeight: 'bold', color: 'error.main' }}>
+      ※元には戻せません。
+    </Box>
+  </Typography>
+);
 
-export const TrashList = ({ onRestore, onPermanentDelete }: Props) => {
+type Props = { onRestore: (id: string) => void };
+
+export const TrashList = ({ onRestore }: Props) => {
   const { trashTodos } = useGetTrashTodos();
+  const { permanentDelete } = usePermanentDelete();
+  const { displayConfirm } = useConfirmDialogContext();
   const handleRestore = useCallback((id: string) => onRestore(id), [onRestore]);
-  const handlePermanentDelete = useCallback((id: string) => onPermanentDelete(id), [onPermanentDelete]);
+
+  const handlePermanentDelete = useCallback(
+    ({ id, title }: Todo) => {
+      displayConfirm({
+        content: <Message title={title} />,
+        onClickOk: async () => await permanentDelete(id),
+      });
+    },
+    [displayConfirm, permanentDelete],
+  );
 
   const columns = useMemo<GridColDef<Todo>[]>(
     () => [
@@ -66,7 +87,7 @@ export const TrashList = ({ onRestore, onPermanentDelete }: Props) => {
             </IconButton>
             <IconButton
               aria-label={`${params.row.title}を完全に削除`}
-              onClick={() => handlePermanentDelete(params.row.id)}
+              onClick={() => handlePermanentDelete(params.row)}
               size='small'
             >
               <DeleteForeverIcon />
