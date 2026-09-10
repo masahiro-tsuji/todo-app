@@ -7,7 +7,7 @@ import type { GridColDef } from '@mui/x-data-grid';
 import { useCallback, useMemo } from 'react';
 import type { Todo } from '@/api/types/todo';
 import { DataGrid, useConfirmDialogContext } from '@/components';
-import { useGetTrashTodos, usePermanentDelete } from '@/hooks';
+import { useGetTrashTodos, usePermanentDelete, useRestore } from '@/hooks';
 import { formatToYYYYMMDDHHmm } from '@/utils';
 
 const Message = ({ title }: { title: string }) => (
@@ -20,13 +20,18 @@ const Message = ({ title }: { title: string }) => (
   </Typography>
 );
 
-type Props = { onRestore: (id: string) => void };
-
-export const TrashList = ({ onRestore }: Props) => {
+export const TrashList = () => {
   const { trashTodos } = useGetTrashTodos();
+  const { restore } = useRestore();
   const { permanentDelete } = usePermanentDelete();
   const { displayConfirm } = useConfirmDialogContext();
-  const handleRestore = useCallback((id: string) => onRestore(id), [onRestore]);
+
+  const handleRestore = useCallback(
+    ({ id, title }: Todo) => {
+      displayConfirm({ content: `「${title}」を復元しますか？`, onClickOk: async () => await restore(id) });
+    },
+    [displayConfirm, restore],
+  );
 
   const handlePermanentDelete = useCallback(
     ({ id, title }: Todo) => {
@@ -78,11 +83,7 @@ export const TrashList = ({ onRestore }: Props) => {
               height: '100%',
             }}
           >
-            <IconButton
-              aria-label={`${params.row.title}を復元`}
-              onClick={() => handleRestore(params.row.id)}
-              size='small'
-            >
+            <IconButton aria-label={`${params.row.title}を復元`} onClick={() => handleRestore(params.row)} size='small'>
               <RestoreFromTrashIcon />
             </IconButton>
             <IconButton

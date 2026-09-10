@@ -22,6 +22,7 @@ const mockTrashTodos = [
 ];
 
 const mockPermanentDelete = jest.fn();
+const mockRestore = jest.fn();
 
 jest.mock('@/hooks/useGetTrashTodos', () => ({
   useGetTrashTodos: () => ({ trashTodos: mockTrashTodos }),
@@ -31,23 +32,24 @@ jest.mock('@/hooks/usePermanentDelete', () => ({
   usePermanentDelete: () => ({ permanentDelete: mockPermanentDelete, isPendingPermanentDelete: false }),
 }));
 
-const renderTrashList = () => {
-  const onRestore = jest.fn();
+jest.mock('@/hooks/useRestore', () => ({
+  useRestore: () => ({ restore: mockRestore, isPendingRestore: false }),
+}));
 
-  const result = render(
+const renderTrashList = () => {
+  return render(
     <ConfirmDialogProvider>
       <MuiProvider>
-        <TrashList onRestore={onRestore} />
+        <TrashList />
       </MuiProvider>
     </ConfirmDialogProvider>,
   );
-
-  return { ...result, onRestore };
 };
 
 describe('TrashList コンポーネントのテスト', () => {
   beforeEach(() => {
     mockPermanentDelete.mockClear();
+    mockRestore.mockClear();
   });
 
   test('ゴミ箱のTODO一覧が表示されること', () => {
@@ -79,14 +81,42 @@ describe('TrashList コンポーネントのテスト', () => {
     });
   });
 
-  test('復元ボタンでonRestoreが呼ばれること', async () => {
+  test('復元ボタンで確認後にrestoreが呼ばれること', async () => {
     const user = userEvent.setup();
-    const { onRestore } = renderTrashList();
+    renderTrashList();
     const target = mockTrashTodos[0];
 
     await user.click(screen.getByRole('button', { name: `${target.title}を復元` }));
 
-    expect(onRestore).toHaveBeenCalledWith(target.id);
+    await waitFor(() => {
+      expect(screen.getByText(`「${target.title}」を復元しますか？`)).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole('button', { name: 'OK' }));
+
+    await waitFor(() => {
+      expect(mockRestore).toHaveBeenCalledWith(target.id);
+    });
+  });
+
+  test('restoreが失敗した場合は確認ダイアログが閉じないこと', async () => {
+    mockRestore.mockRejectedValueOnce(new Error('failed'));
+    const user = userEvent.setup();
+    renderTrashList();
+    const target = mockTrashTodos[0];
+
+    await user.click(screen.getByRole('button', { name: `${target.title}を復元` }));
+
+    await waitFor(() => {
+      expect(screen.getByText(`「${target.title}」を復元しますか？`)).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole('button', { name: 'OK' }));
+
+    await waitFor(() => {
+      expect(mockRestore).toHaveBeenCalledWith(target.id);
+    });
+    expect(screen.getByText(`「${target.title}」を復元しますか？`)).toBeInTheDocument();
   });
 
   test('完全削除ボタンで確認後にpermanentDeleteが呼ばれること', async () => {

@@ -6,6 +6,7 @@ export * from './useGetTodos';
 export * from './useGetTrashTodos';
 export * from './usePermanentDelete';
 export * from './useQueries';
+export * from './useRestore';
 export * from './useSetupTotp';
 export * from './useSoftDelete';
 export * from './useUpdateMfaPreference';

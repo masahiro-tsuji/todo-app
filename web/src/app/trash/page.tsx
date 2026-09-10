@@ -15,8 +15,6 @@ const boxProps: SxProps = {
 const titleSx: SxProps = { textAlign: 'center', fontWeight: 'bold', fontSize: 18, mb: 2 };
 
 export default function TrashPage() {
-  const handleRestore = (_id: string) => {};
-
   return (
     <Box sx={boxProps}>
       <Paper elevation={3} sx={{ width: '100%', maxWidth: '900px', m: 1, p: 1 }}>
@@ -24,7 +22,7 @@ export default function TrashPage() {
           ゴミ箱
         </Typography>
         <Suspense fallback={<LoadingIndicator />}>
-          <TrashList onRestore={handleRestore} />
+          <TrashList />
         </Suspense>
       </Paper>
     </Box>
