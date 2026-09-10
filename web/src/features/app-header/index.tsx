@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Link } from '@mui/material';
+import { Box, type LinkProps, Link as MuiLink } from '@mui/material';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import NextLink from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -9,20 +9,48 @@ import { isGuestPath, routes } from '@/constants/routes';
 import { useAuth } from '@/hooks';
 import { theme } from '../../../theme';
 
-const headerLinkSx = {
-  color: theme.header.link,
-  fontSize: theme.typography.fontSize ?? 14,
-  fontWeight: 'bold',
-  cursor: 'pointer',
-  '&:hover': { color: theme.blue.light },
+/** ヘッダーのスタイル */
+const headerSx = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  px: 2,
+  py: 1.5,
+  bgcolor: theme.blue.dark,
 };
 
+/** ヘッダー内のリンクグループのスタイル */
+const navGroupSx = { display: 'flex', alignItems: 'center', gap: 3 };
+
+/** ログアウトリンクのスタイル */
 const logoutLinkSx = {
   color: theme.red.main,
   fontSize: theme.typography.fontSize ?? 14,
   fontWeight: 'bold',
   cursor: 'pointer',
   '&:hover': { color: theme.red.light },
+  border: 'none',
+  bgcolor: 'transparent',
+  fontFamily: 'inherit',
+};
+
+const Link = ({ children, ...props }: LinkProps) => {
+  return (
+    <MuiLink
+      component={NextLink}
+      underline='hover'
+      sx={{
+        color: theme.header.link,
+        fontSize: theme.typography.fontSize ?? 14,
+        fontWeight: 'bold',
+        cursor: 'pointer',
+        '&:hover': { color: theme.blue.light },
+      }}
+      {...props}
+    >
+      {children}
+    </MuiLink>
+  );
 };
 
 export const AppHeader = () => {
@@ -47,37 +75,17 @@ export const AppHeader = () => {
   if (isChecking || !isAuthenticated || isGuestPath(pathname)) return null;
 
   return (
-    <Box
-      component='header'
-      sx={{
-        display: 'flex',
-        justifyContent: 'flex-end',
-        alignItems: 'center',
-        gap: 3,
-        px: 2,
-        py: 1.5,
-        bgcolor: theme.blue.dark,
-      }}
-    >
-      <Link component={NextLink} href={routes.settings} underline='hover' sx={headerLinkSx}>
-        設定
-      </Link>
-      <Link
-        component='button'
-        type='button'
-        underline='hover'
-        onClick={logout}
-        disabled={isLoading}
-        sx={{
-          ...logoutLinkSx,
-          border: 'none',
-          bgcolor: 'transparent',
-          fontFamily: 'inherit',
-          opacity: isLoading ? 0.6 : 1,
-        }}
-      >
-        ログアウト
-      </Link>
+    <Box component='header' sx={headerSx}>
+      <Box sx={navGroupSx}>
+        <Link href={routes.list}>TODO一覧</Link>
+        <Link href={routes.trash}>ゴミ箱</Link>
+      </Box>
+      <Box sx={navGroupSx}>
+        <Link href={routes.settings}>設定</Link>
+        <MuiLink component='button' underline='hover' onClick={logout} disabled={isLoading} sx={logoutLinkSx}>
+          ログアウト
+        </MuiLink>
+      </Box>
     </Box>
   );
 };

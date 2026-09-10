@@ -6,15 +6,15 @@ import { Box, IconButton } from '@mui/material';
 import type { GridColDef } from '@mui/x-data-grid';
 import { useCallback, useMemo, useState } from 'react';
 import type { Todo } from '@/api/types/todo';
-import { DataGrid } from '@/components';
+import { DataGrid, useConfirmDialogContext } from '@/components';
 import { EditTodo } from '@/features/edit-todo';
-import { useGetTodos } from '@/hooks';
+import { useGetTodos, useSoftDelete } from '@/hooks';
 import { formatToYYYYMMDDHHmm } from '@/utils';
 
-type Props = { onDelete: (id: string) => void };
-
-export const TodoList = ({ onDelete }: Props) => {
+export const TodoList = () => {
   const { data: todos } = useGetTodos();
+  const { softDelete } = useSoftDelete();
+  const { displayConfirm } = useConfirmDialogContext();
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
 
   const handleEdit = useCallback(
@@ -25,9 +25,14 @@ export const TodoList = ({ onDelete }: Props) => {
     [todos],
   );
 
-  const handleDelete = useCallback((id: string) => onDelete(id), [onDelete]);
+  const handleSoftDelete = useCallback(
+    ({ id, title }: Todo) => {
+      displayConfirm({ content: `「${title}」をゴミ箱に移動しますか？`, onClickOk: async () => await softDelete(id) });
+    },
+    [displayConfirm, softDelete],
+  );
 
-  const columns = useMemo<GridColDef[]>(
+  const columns = useMemo<GridColDef<Todo>[]>(
     () => [
       { field: 'title', headerName: 'タイトル', flex: 1, minWidth: 120 },
       { field: 'detail', headerName: '詳細', flex: 1, minWidth: 120, valueGetter: (_value, row) => row.detail ?? '—' },
@@ -64,7 +69,7 @@ export const TodoList = ({ onDelete }: Props) => {
             </IconButton>
             <IconButton
               aria-label={`${params.row.title}を削除`}
-              onClick={() => handleDelete(params.row.id)}
+              onClick={() => handleSoftDelete(params.row)}
               size='small'
             >
               <DeleteIcon />
@@ -73,7 +78,7 @@ export const TodoList = ({ onDelete }: Props) => {
         ),
       },
     ],
-    [handleEdit, handleDelete],
+    [handleSoftDelete, handleEdit],
   );
 
   return (

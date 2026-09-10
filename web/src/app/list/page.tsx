@@ -14,8 +14,6 @@ const boxProps: SxProps = {
 };
 
 export default function ListPage() {
-  const handleDelete = (_id: string) => {};
-
   return (
     <Box sx={boxProps}>
       <Paper elevation={3} sx={{ width: '100%', maxWidth: '900px', m: 1, p: 1 }}>
@@ -26,7 +24,7 @@ export default function ListPage() {
           <CreateTodo />
         </Box>
         <Suspense fallback={<LoadingIndicator />}>
-          <TodoList onDelete={handleDelete} />
+          <TodoList />
         </Suspense>
       </Paper>
     </Box>
