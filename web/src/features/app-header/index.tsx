@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Link } from '@mui/material';
+import { Box, type LinkProps, Link as MuiLink } from '@mui/material';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import NextLink from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -22,15 +22,6 @@ const headerSx = {
 /** ヘッダー内のリンクグループのスタイル */
 const navGroupSx = { display: 'flex', alignItems: 'center', gap: 3 };
 
-/** デフォルトのヘッダーリンクのスタイル */
-const defaultHeaderLinkSx = {
-  color: theme.header.link,
-  fontSize: theme.typography.fontSize ?? 14,
-  fontWeight: 'bold',
-  cursor: 'pointer',
-  '&:hover': { color: theme.blue.light },
-};
-
 /** ログアウトリンクのスタイル */
 const logoutLinkSx = {
   color: theme.red.main,
@@ -41,6 +32,25 @@ const logoutLinkSx = {
   border: 'none',
   bgcolor: 'transparent',
   fontFamily: 'inherit',
+};
+
+const Link = ({ children, ...props }: LinkProps) => {
+  return (
+    <MuiLink
+      component={NextLink}
+      underline='hover'
+      sx={{
+        color: theme.header.link,
+        fontSize: theme.typography.fontSize ?? 14,
+        fontWeight: 'bold',
+        cursor: 'pointer',
+        '&:hover': { color: theme.blue.light },
+      }}
+      {...props}
+    >
+      {children}
+    </MuiLink>
+  );
 };
 
 export const AppHeader = () => {
@@ -67,17 +77,14 @@ export const AppHeader = () => {
   return (
     <Box component='header' sx={headerSx}>
       <Box sx={navGroupSx}>
-        <Link component={NextLink} href={routes.list} underline='hover' sx={defaultHeaderLinkSx}>
-          TODO一覧
-        </Link>
+        <Link href={routes.list}>TODO一覧</Link>
+        <Link href={routes.trash}>ゴミ箱</Link>
       </Box>
       <Box sx={navGroupSx}>
-        <Link component={NextLink} href={routes.settings} underline='hover' sx={defaultHeaderLinkSx}>
-          設定
-        </Link>
-        <Link component='button' underline='hover' onClick={logout} disabled={isLoading} sx={logoutLinkSx}>
+        <Link href={routes.settings}>設定</Link>
+        <MuiLink component='button' underline='hover' onClick={logout} disabled={isLoading} sx={logoutLinkSx}>
           ログアウト
-        </Link>
+        </MuiLink>
       </Box>
     </Box>
   );

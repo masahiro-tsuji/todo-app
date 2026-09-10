@@ -83,7 +83,7 @@ describe('TodoList コンポーネントのテスト', () => {
     await user.click(screen.getByRole('button', { name: `${target.title}を削除` }));
 
     await waitFor(() => {
-      expect(screen.getByText('ゴミ箱に移動しますか？')).toBeInTheDocument();
+      expect(screen.getByText(`「${target.title}」をゴミ箱に移動しますか？`)).toBeInTheDocument();
     });
 
     await user.click(screen.getByRole('button', { name: 'OK' }));
@@ -102,7 +102,7 @@ describe('TodoList コンポーネントのテスト', () => {
     await user.click(screen.getByRole('button', { name: `${target.title}を削除` }));
 
     await waitFor(() => {
-      expect(screen.getByText('ゴミ箱に移動しますか？')).toBeInTheDocument();
+      expect(screen.getByText(`「${target.title}」をゴミ箱に移動しますか？`)).toBeInTheDocument();
     });
 
     await user.click(screen.getByRole('button', { name: 'OK' }));
@@ -110,7 +110,7 @@ describe('TodoList コンポーネントのテスト', () => {
     await waitFor(() => {
       expect(mockSoftDelete).toHaveBeenCalledWith(target.id);
     });
-    expect(screen.getByText('ゴミ箱に移動しますか？')).toBeInTheDocument();
+    expect(screen.getByText(`「${target.title}」をゴミ箱に移動しますか？`)).toBeInTheDocument();
   });
 
   test('編集ボタンをクリックすると編集ダイアログが表示されること', async () => {

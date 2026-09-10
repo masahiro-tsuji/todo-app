@@ -54,7 +54,7 @@ describe('AppHeader コンポーネントのテスト', () => {
 
     await waitFor(() => {
       expect(screen.queryByRole('link', { name: 'TODO一覧' })).not.toBeInTheDocument();
-
+      expect(screen.queryByRole('link', { name: 'ゴミ箱' })).not.toBeInTheDocument();
       expect(screen.queryByRole('link', { name: '設定' })).not.toBeInTheDocument();
       expect(screen.queryByRole('button', { name: 'ログアウト' })).not.toBeInTheDocument();
     });
@@ -65,18 +65,20 @@ describe('AppHeader コンポーネントのテスト', () => {
 
     await waitFor(() => {
       expect(screen.queryByRole('link', { name: 'TODO一覧' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: 'ゴミ箱' })).not.toBeInTheDocument();
       expect(screen.queryByRole('link', { name: '設定' })).not.toBeInTheDocument();
       expect(screen.queryByRole('button', { name: 'ログアウト' })).not.toBeInTheDocument();
     });
   });
 
-  test('/list かつログイン中はTODO一覧・設定・ログアウトのテキストメニューが表示されること', async () => {
+  test('/list かつログイン中はTODO一覧・ゴミ箱・設定・ログアウトのテキストメニューが表示されること', async () => {
     jest.mocked(fetchAuthSession).mockResolvedValue(authenticatedSession);
 
     renderAppHeader();
 
     await waitFor(() => {
       expect(screen.getByRole('link', { name: 'TODO一覧' })).toHaveAttribute('href', '/list');
+      expect(screen.getByRole('link', { name: 'ゴミ箱' })).toHaveAttribute('href', '/trash');
       expect(screen.getByRole('link', { name: '設定' })).toHaveAttribute('href', '/settings');
       expect(screen.getByRole('button', { name: 'ログアウト' })).toBeInTheDocument();
     });

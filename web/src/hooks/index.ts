@@ -5,6 +5,7 @@ export * from './useGetMfaState';
 export * from './useGetTodos';
 export * from './useQueries';
 export * from './useSetupTotp';
+export * from './useSoftDelete';
 export * from './useUpdateMfaPreference';
 export * from './useUpdateTodo';
 export * from './useVerifyTotpSetup';
