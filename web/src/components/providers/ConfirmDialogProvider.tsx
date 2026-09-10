@@ -4,7 +4,7 @@ import React, { createContext, type ReactNode, useCallback, useContext, useState
 import { Dialog } from '../parts';
 
 type DialogActionType = {
-  onClickOk?: () => void;
+  onClickOk?: () => void | Promise<void>;
   onClose?: () => void;
 };
 
@@ -16,6 +16,7 @@ const ConfirmContext = createContext<ConfirmContextType | null>(null);
 
 export const ConfirmDialogProvider = ({ children }: { children: React.ReactNode }) => {
   const [confirmState, setConfirmState] = useState<ConfirmDialogProps | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const confirm = useCallback(async (options: ConfirmProviderOptions) => {
     const { content } = options;
@@ -28,20 +29,40 @@ export const ConfirmDialogProvider = ({ children }: { children: React.ReactNode 
     return setConfirmState({ message, ...options });
   }, []);
 
-  const onClickOk = () => {
-    if (confirmState?.onClickOk) confirmState?.onClickOk();
-    setConfirmState(null);
+  const onClickOk = async () => {
+    if (!confirmState?.onClickOk) {
+      setConfirmState(null);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await confirmState.onClickOk();
+      setConfirmState(null);
+    } catch {
+      // 失敗時はダイアログを開いたままにする
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const onClickClose = () => {
-    if (confirmState?.onClose) confirmState?.onClose();
+    if (isLoading) return;
+    if (confirmState?.onClose) confirmState.onClose();
     setConfirmState(null);
   };
 
   return (
     <ConfirmContext.Provider value={confirm}>
       {children}
-      <Dialog title='確認' open={!!confirmState} onClose={onClickClose} onPrimaryClick={onClickOk} size='sm'>
+      <Dialog
+        title='確認'
+        open={!!confirmState}
+        onClose={onClickClose}
+        onPrimaryClick={onClickOk}
+        primaryLoading={isLoading}
+        size='sm'
+      >
         {typeof confirmState?.message === 'string' ? (
           <Typography>{confirmState?.message}</Typography>
         ) : (

@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MuiProvider } from '@/components';
+import { ConfirmDialogProvider, MuiProvider } from '@/components';
 import { formatToYYYYMMDDHHmm } from '@/utils';
 
 import { TodoList } from '../index';
@@ -15,6 +15,8 @@ const mockTodos = Array(5)
     createdAt: `2026-01-0${i + 1}T10:00:00.000Z`,
   }));
 
+const mockSoftDelete = jest.fn();
+
 jest.mock('@/hooks/useGetTodos', () => ({
   useGetTodos: () => ({ data: mockTodos }),
 }));
@@ -23,19 +25,25 @@ jest.mock('@/hooks/useUpdateTodo', () => ({
   useUpdateTodo: () => ({ updateTodo: jest.fn(), isPendingUpdateTodo: false }),
 }));
 
+jest.mock('@/hooks/useSoftDelete', () => ({
+  useSoftDelete: () => ({ softDelete: mockSoftDelete, isPendingSoftDelete: false }),
+}));
+
 const renderTodoList = () => {
-  const onDelete = jest.fn();
-
-  const result = render(
-    <MuiProvider>
-      <TodoList onDelete={onDelete} />
-    </MuiProvider>,
+  return render(
+    <ConfirmDialogProvider>
+      <MuiProvider>
+        <TodoList />
+      </MuiProvider>
+    </ConfirmDialogProvider>,
   );
-
-  return { ...result, onDelete };
 };
 
 describe('TodoList コンポーネントのテスト', () => {
+  beforeEach(() => {
+    mockSoftDelete.mockClear();
+  });
+
   test('TODO一覧が表示されること', () => {
     renderTodoList();
     mockTodos.forEach((element) => {
@@ -67,14 +75,42 @@ describe('TodoList コンポーネントのテスト', () => {
     });
   });
 
-  test('削除ボタンでonDeleteが呼ばれること', async () => {
+  test('削除ボタンで確認後にsoftDeleteが呼ばれること', async () => {
     const user = userEvent.setup();
-    const { onDelete } = renderTodoList();
+    renderTodoList();
     const target = mockTodos[4];
 
     await user.click(screen.getByRole('button', { name: `${target.title}を削除` }));
 
-    expect(onDelete).toHaveBeenCalledWith(target.id);
+    await waitFor(() => {
+      expect(screen.getByText('ゴミ箱に移動しますか？')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole('button', { name: 'OK' }));
+
+    await waitFor(() => {
+      expect(mockSoftDelete).toHaveBeenCalledWith(target.id);
+    });
+  });
+
+  test('softDeleteが失敗した場合は確認ダイアログが閉じないこと', async () => {
+    mockSoftDelete.mockRejectedValueOnce(new Error('failed'));
+    const user = userEvent.setup();
+    renderTodoList();
+    const target = mockTodos[4];
+
+    await user.click(screen.getByRole('button', { name: `${target.title}を削除` }));
+
+    await waitFor(() => {
+      expect(screen.getByText('ゴミ箱に移動しますか？')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole('button', { name: 'OK' }));
+
+    await waitFor(() => {
+      expect(mockSoftDelete).toHaveBeenCalledWith(target.id);
+    });
+    expect(screen.getByText('ゴミ箱に移動しますか？')).toBeInTheDocument();
   });
 
   test('編集ボタンをクリックすると編集ダイアログが表示されること', async () => {
