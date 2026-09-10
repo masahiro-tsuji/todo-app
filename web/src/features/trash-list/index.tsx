@@ -7,33 +7,17 @@ import type { GridColDef } from '@mui/x-data-grid';
 import { useCallback, useMemo } from 'react';
 import type { Todo } from '@/api/types/todo';
 import { DataGrid } from '@/components';
+import { useGetTrashTodos } from '@/hooks';
 import { formatToYYYYMMDDHHmm } from '@/utils';
-
-const dummyTrashTodos: Todo[] = [
-  {
-    userId: 'dummy-user',
-    id: '1',
-    title: 'タイトル1',
-    detail: '詳細1',
-    createdAt: '2026-01-01T10:00:00.000Z',
-    deletedAt: '2026-01-10T12:00:00.000Z',
-  },
-  {
-    userId: 'dummy-user',
-    id: '2',
-    title: 'タイトル2',
-    createdAt: '2026-01-02T10:00:00.000Z',
-    deletedAt: '2026-01-11T15:30:00.000Z',
-  },
-];
 
 type Props = { onRestore: (id: string) => void; onPermanentDelete: (id: string) => void };
 
 export const TrashList = ({ onRestore, onPermanentDelete }: Props) => {
+  const { trashTodos } = useGetTrashTodos();
   const handleRestore = useCallback((id: string) => onRestore(id), [onRestore]);
   const handlePermanentDelete = useCallback((id: string) => onPermanentDelete(id), [onPermanentDelete]);
 
-  const columns = useMemo<GridColDef[]>(
+  const columns = useMemo<GridColDef<Todo>[]>(
     () => [
       { field: 'title', headerName: 'タイトル', flex: 1, minWidth: 120 },
       { field: 'detail', headerName: '詳細', flex: 1, minWidth: 120, valueGetter: (_value, row) => row.detail ?? '—' },
@@ -96,7 +80,7 @@ export const TrashList = ({ onRestore, onPermanentDelete }: Props) => {
 
   return (
     <DataGrid
-      rows={dummyTrashTodos}
+      rows={trashTodos}
       columns={columns}
       getRowId={(row) => row.id}
       disableRowSelectionOnClick

@@ -3,6 +3,7 @@ export * from './useCreateTodo';
 export * from './useDialogState';
 export * from './useGetMfaState';
 export * from './useGetTodos';
+export * from './useGetTrashTodos';
 export * from './useQueries';
 export * from './useSetupTotp';
 export * from './useSoftDelete';

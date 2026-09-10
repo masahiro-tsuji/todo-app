@@ -1,6 +1,8 @@
 'use client';
 
 import { Box, Paper, type SxProps, Typography } from '@mui/material';
+import { Suspense } from 'react';
+import { LoadingIndicator } from '@/components';
 import { TrashList } from '@/features/trash-list';
 
 const boxProps: SxProps = {
@@ -22,7 +24,9 @@ export default function TrashPage() {
         <Typography variant='h1' component='h1' sx={titleSx}>
           ゴミ箱
         </Typography>
-        <TrashList onRestore={handleRestore} onPermanentDelete={handlePermanentDelete} />
+        <Suspense fallback={<LoadingIndicator />}>
+          <TrashList onRestore={handleRestore} onPermanentDelete={handlePermanentDelete} />
+        </Suspense>
       </Paper>
     </Box>
   );

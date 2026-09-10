@@ -21,6 +21,10 @@ const mockTrashTodos = [
   },
 ];
 
+jest.mock('@/hooks/useGetTrashTodos', () => ({
+  useGetTrashTodos: () => ({ trashTodos: mockTrashTodos }),
+}));
+
 const renderTrashList = () => {
   const onRestore = jest.fn();
   const onPermanentDelete = jest.fn();
