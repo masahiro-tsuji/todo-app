@@ -1,8 +1,8 @@
 import '@testing-library/jest-dom';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { Todo } from '@/api/types/todo';
 import { MuiProvider } from '@/components';
+import type { Todo } from '@/types';
 import { EditTodo } from '../index';
 
 const mockUpdateTodo = jest.fn();
@@ -19,11 +19,11 @@ const mockTodo: Todo = {
   createdAt: '2026-01-01T10:00:00.000Z',
 };
 
-const renderEditTodo = (props?: Partial<{ todo: Todo | null; open: boolean; onClose: () => void }>) => {
+const renderEditTodo = (props?: Partial<{ todo: Todo | null; isOpen: boolean; onClose: () => void }>) => {
   const onClose = props?.onClose ?? jest.fn();
   const result = render(
     <MuiProvider>
-      <EditTodo todo={props?.todo ?? mockTodo} open={props?.open ?? true} onClose={onClose} />
+      <EditTodo todo={props?.todo ?? mockTodo} isOpen={props?.isOpen ?? true} onClose={onClose} />
     </MuiProvider>,
   );
 

@@ -3,21 +3,21 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { TextField } from '@mui/material';
 import { useForm } from 'react-hook-form';
-import type { Todo } from '@/api/types/todo';
 import type { UpdateTodoRequestBody } from '@/api/updateTodo';
 import { Dialog } from '@/components';
 import { useUpdateTodo } from '@/hooks';
+import type { Todo } from '@/types';
 import { type EditTodoForm, editTodoFormSchema } from './types/Schema';
 
 type Props = {
   todo: Todo | null;
-  open: boolean;
+  isOpen: boolean;
   onClose: () => void;
 };
 
 const emptyValues: EditTodoForm = { title: '', detail: '' };
 
-export const EditTodo = ({ todo, open, onClose }: Props) => {
+export const EditTodo = ({ todo, isOpen, onClose }: Props) => {
   const { isPendingUpdateTodo, updateTodo } = useUpdateTodo();
   const {
     register,
@@ -55,7 +55,7 @@ export const EditTodo = ({ todo, open, onClose }: Props) => {
 
   return (
     <Dialog
-      open={open}
+      open={isOpen}
       title='TODO編集'
       primaryButtonName='更新'
       onClose={handleClose}

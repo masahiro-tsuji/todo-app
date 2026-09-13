@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
 import { getTrashTodos } from '@/api/getTrashTodos';
-import type { Todo } from '@/api/types/todo';
 import { trashQueryKey } from '@/constants/queryKey';
-import { useQueryWithSuspense } from './useQueries';
+import type { Todo } from '@/types';
+import { useQueryDefault } from './useQueries';
 
 export const useGetTrashTodos = () => {
   const fetchTrashTodos = useCallback(async () => {
@@ -14,7 +14,7 @@ export const useGetTrashTodos = () => {
     }
   }, []);
 
-  const { data: trashTodos } = useQueryWithSuspense<Todo[]>(trashQueryKey, fetchTrashTodos);
+  const { data: trashTodos, isPending } = useQueryDefault<Todo[]>(trashQueryKey, fetchTrashTodos);
 
-  return { trashTodos };
+  return { trashTodos: trashTodos ?? [], isPending };
 };

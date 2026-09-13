@@ -5,9 +5,9 @@ import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
 import { Box, IconButton, Typography } from '@mui/material';
 import type { GridColDef } from '@mui/x-data-grid';
 import { useCallback, useMemo } from 'react';
-import type { Todo } from '@/api/types/todo';
 import { DataGrid, useConfirmDialogContext } from '@/components';
 import { useGetTrashTodos, usePermanentDelete, useRestore } from '@/hooks';
+import type { Todo } from '@/types';
 import { formatToYYYYMMDDHHmm } from '@/utils';
 
 const Message = ({ title }: { title: string }) => (
@@ -21,7 +21,7 @@ const Message = ({ title }: { title: string }) => (
 );
 
 export const TrashList = () => {
-  const { trashTodos } = useGetTrashTodos();
+  const { trashTodos, isPending } = useGetTrashTodos();
   const { restore } = useRestore();
   const { permanentDelete } = usePermanentDelete();
   const { displayConfirm } = useConfirmDialogContext();
@@ -105,6 +105,7 @@ export const TrashList = () => {
       rows={trashTodos}
       columns={columns}
       getRowId={(row) => row.id}
+      loading={isPending}
       disableRowSelectionOnClick
       hideFooter
       sx={{

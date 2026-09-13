@@ -4,33 +4,16 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { Box, IconButton } from '@mui/material';
 import type { GridColDef } from '@mui/x-data-grid';
-import { useCallback, useMemo, useState } from 'react';
-import type { Todo } from '@/api/types/todo';
-import { DataGrid, useConfirmDialogContext } from '@/components';
-import { EditTodo } from '@/features/edit-todo';
-import { useGetTodos, useSoftDelete } from '@/hooks';
+import { useMemo } from 'react';
+import { DataGrid } from '@/components';
+import { useGetTodos } from '@/hooks';
+import type { Todo } from '@/types';
 import { formatToYYYYMMDDHHmm } from '@/utils';
 
-export const TodoList = () => {
-  const { data: todos } = useGetTodos();
-  const { softDelete } = useSoftDelete();
-  const { displayConfirm } = useConfirmDialogContext();
-  const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
+type Props = { onOpenEditDialog: (todo: Todo) => void; onOpenSoftDeleteDialog: (todo: Todo) => void };
 
-  const handleEdit = useCallback(
-    (id: string) => {
-      const todo = todos.find((item) => item.id === id) ?? null;
-      setEditingTodo(todo);
-    },
-    [todos],
-  );
-
-  const handleSoftDelete = useCallback(
-    ({ id, title }: Todo) => {
-      displayConfirm({ content: `「${title}」をゴミ箱に移動しますか？`, onClickOk: async () => await softDelete(id) });
-    },
-    [displayConfirm, softDelete],
-  );
+export const TodoList = ({ onOpenEditDialog, onOpenSoftDeleteDialog }: Props) => {
+  const { todos, isPending } = useGetTodos();
 
   const columns = useMemo<GridColDef<Todo>[]>(
     () => [
@@ -64,12 +47,16 @@ export const TodoList = () => {
               height: '100%',
             }}
           >
-            <IconButton aria-label={`${params.row.title}を編集`} onClick={() => handleEdit(params.row.id)} size='small'>
+            <IconButton
+              aria-label={`${params.row.title}を編集`}
+              onClick={() => onOpenEditDialog(params.row)}
+              size='small'
+            >
               <EditIcon />
             </IconButton>
             <IconButton
               aria-label={`${params.row.title}を削除`}
-              onClick={() => handleSoftDelete(params.row)}
+              onClick={() => onOpenSoftDeleteDialog(params.row)}
               size='small'
             >
               <DeleteIcon />
@@ -78,27 +65,25 @@ export const TodoList = () => {
         ),
       },
     ],
-    [handleSoftDelete, handleEdit],
+    [onOpenEditDialog, onOpenSoftDeleteDialog],
   );
 
   return (
-    <>
-      <DataGrid
-        rows={todos}
-        columns={columns}
-        getRowId={(row) => row.id}
-        disableRowSelectionOnClick
-        hideFooter
-        sx={{
-          border: 0,
-          '& .MuiDataGrid-cell[data-field="actions"]': {
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          },
-        }}
-      />
-      <EditTodo todo={editingTodo} open={!!editingTodo} onClose={() => setEditingTodo(null)} />
-    </>
+    <DataGrid
+      rows={todos}
+      columns={columns}
+      getRowId={(row) => row.id}
+      loading={isPending}
+      disableRowSelectionOnClick
+      hideFooter
+      sx={{
+        border: 0,
+        '& .MuiDataGrid-cell[data-field="actions"]': {
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        },
+      }}
+    />
   );
 };

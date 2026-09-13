@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
 import { getTodos } from '@/api/getTodos';
-import type { Todo } from '@/api/types/todo';
 import { todosQueryKey } from '@/constants/queryKey';
-import { useQueryWithSuspense } from './useQueries';
+import type { Todo } from '@/types';
+import { useQueryDefault } from './useQueries';
 
 export const useGetTodos = () => {
   const fetchTodos = useCallback(async () => {
@@ -14,7 +14,7 @@ export const useGetTodos = () => {
     }
   }, []);
 
-  const { data } = useQueryWithSuspense<Todo[]>(todosQueryKey, fetchTodos);
+  const { data, isPending } = useQueryDefault<Todo[]>(todosQueryKey, fetchTodos);
 
-  return { data };
+  return { todos: data ?? [], isPending };
 };
