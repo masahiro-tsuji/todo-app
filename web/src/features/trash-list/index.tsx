@@ -21,7 +21,7 @@ const Message = ({ title }: { title: string }) => (
 );
 
 export const TrashList = () => {
-  const { trashTodos } = useGetTrashTodos();
+  const { trashTodos, isPending } = useGetTrashTodos();
   const { restore } = useRestore();
   const { permanentDelete } = usePermanentDelete();
   const { displayConfirm } = useConfirmDialogContext();
@@ -105,6 +105,7 @@ export const TrashList = () => {
       rows={trashTodos}
       columns={columns}
       getRowId={(row) => row.id}
+      loading={isPending}
       disableRowSelectionOnClick
       hideFooter
       sx={{

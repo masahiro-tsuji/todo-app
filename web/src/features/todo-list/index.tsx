@@ -13,7 +13,7 @@ import { formatToYYYYMMDDHHmm } from '@/utils';
 type Props = { onOpenEditDialog: (todo: Todo) => void; onOpenSoftDeleteDialog: (todo: Todo) => void };
 
 export const TodoList = ({ onOpenEditDialog, onOpenSoftDeleteDialog }: Props) => {
-  const { data: todos } = useGetTodos();
+  const { todos, isPending } = useGetTodos();
 
   const columns = useMemo<GridColDef<Todo>[]>(
     () => [
@@ -73,6 +73,7 @@ export const TodoList = ({ onOpenEditDialog, onOpenSoftDeleteDialog }: Props) =>
       rows={todos}
       columns={columns}
       getRowId={(row) => row.id}
+      loading={isPending}
       disableRowSelectionOnClick
       hideFooter
       sx={{

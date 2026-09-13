@@ -19,7 +19,7 @@ const mockOnOpenEditDialog = jest.fn();
 const mockOnOpenSoftDeleteDialog = jest.fn();
 
 jest.mock('@/hooks/useGetTodos', () => ({
-  useGetTodos: () => ({ data: mockTodos }),
+  useGetTodos: () => ({ todos: mockTodos }),
 }));
 
 const renderTodoList = () => {

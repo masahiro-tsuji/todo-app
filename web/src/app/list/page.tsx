@@ -1,8 +1,7 @@
 'use client';
 
 import { Box, Paper, type SxProps, Typography } from '@mui/material';
-import { Suspense, useCallback, useState } from 'react';
-import { LoadingIndicator } from '@/components';
+import { useCallback, useState } from 'react';
 import { CreateTodo } from '@/features/create-todo';
 import { EditTodo } from '@/features/edit-todo';
 import { SoftDeleteTodo } from '@/features/soft-delete-todo';
@@ -36,9 +35,7 @@ export default function ListPage() {
           <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
             <CreateTodo />
           </Box>
-          <Suspense fallback={<LoadingIndicator />}>
-            <TodoList onOpenEditDialog={onOpenEditDialog} onOpenSoftDeleteDialog={onOpenSoftDeleteDialog} />
-          </Suspense>
+          <TodoList onOpenEditDialog={onOpenEditDialog} onOpenSoftDeleteDialog={onOpenSoftDeleteDialog} />
         </Paper>
       </Box>
       <EditTodo todo={editingTodo} isOpen={!!editingTodo} onClose={onCloseEditDialog} />
