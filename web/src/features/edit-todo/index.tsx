@@ -3,10 +3,10 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { TextField } from '@mui/material';
 import { useForm } from 'react-hook-form';
-import type { Todo } from '@/api/types/todo';
 import type { UpdateTodoRequestBody } from '@/api/updateTodo';
 import { Dialog } from '@/components';
 import { useUpdateTodo } from '@/hooks';
+import type { Todo } from '@/types';
 import { type EditTodoForm, editTodoFormSchema } from './types/Schema';
 
 type Props = {

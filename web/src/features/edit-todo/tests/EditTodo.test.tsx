@@ -1,8 +1,8 @@
 import '@testing-library/jest-dom';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { Todo } from '@/api/types/todo';
 import { MuiProvider } from '@/components';
+import type { Todo } from '@/types';
 import { EditTodo } from '../index';
 
 const mockUpdateTodo = jest.fn();

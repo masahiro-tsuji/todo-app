@@ -1,5 +1,5 @@
+import type { Todo } from '@/types';
 import { axiosClient } from './axios';
-import type { Todo } from './types/todo';
 
 export type CreateTodoRequestBody = {
   title: string;

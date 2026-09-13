@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { getTodos } from '@/api/getTodos';
-import type { Todo } from '@/api/types/todo';
 import { todosQueryKey } from '@/constants/queryKey';
+import type { Todo } from '@/types';
 import { useQueryWithSuspense } from './useQueries';
 
 export const useGetTodos = () => {

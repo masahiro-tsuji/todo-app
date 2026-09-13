@@ -5,10 +5,10 @@ import EditIcon from '@mui/icons-material/Edit';
 import { Box, IconButton } from '@mui/material';
 import type { GridColDef } from '@mui/x-data-grid';
 import { useCallback, useMemo, useState } from 'react';
-import type { Todo } from '@/api/types/todo';
 import { DataGrid, useConfirmDialogContext } from '@/components';
 import { EditTodo } from '@/features/edit-todo';
 import { useGetTodos, useSoftDelete } from '@/hooks';
+import type { Todo } from '@/types';
 import { formatToYYYYMMDDHHmm } from '@/utils';
 
 export const TodoList = () => {
