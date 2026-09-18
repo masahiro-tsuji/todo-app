@@ -78,6 +78,7 @@ export const TodoList = ({ onOpenEditDialog, onOpenSoftDeleteDialog }: Props) =>
       hideFooter
       sx={{
         border: 0,
+        '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 'bold' },
         '& .MuiDataGrid-cell[data-field="actions"]': {
           display: 'flex',
           alignItems: 'center',
