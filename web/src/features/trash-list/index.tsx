@@ -5,7 +5,7 @@ import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
 import { Box, IconButton, Typography } from '@mui/material';
 import type { GridColDef } from '@mui/x-data-grid';
 import { useCallback, useMemo } from 'react';
-import { DataGrid, useConfirmDialogContext } from '@/components';
+import { DataGrid, DataGridActionsCell, useConfirmDialogContext } from '@/components';
 import { useGetTrashTodos, usePermanentDelete, useRestore } from '@/hooks';
 import type { Todo } from '@/types';
 import { formatToYYYYMMDDHHmm } from '@/utils';
@@ -73,16 +73,7 @@ export const TrashList = () => {
         filterable: false,
         disableColumnMenu: true,
         renderCell: (params) => (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 0.5,
-              width: '100%',
-              height: '100%',
-            }}
-          >
+          <DataGridActionsCell>
             <IconButton aria-label={`${params.row.title}を復元`} onClick={() => handleRestore(params.row)} size='small'>
               <RestoreFromTrashIcon />
             </IconButton>
@@ -93,7 +84,7 @@ export const TrashList = () => {
             >
               <DeleteForeverIcon />
             </IconButton>
-          </Box>
+          </DataGridActionsCell>
         ),
       },
     ],
@@ -108,15 +99,6 @@ export const TrashList = () => {
       loading={isPending}
       disableRowSelectionOnClick
       hideFooter
-      sx={{
-        border: 0,
-        '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 'bold' },
-        '& .MuiDataGrid-cell[data-field="actions"]': {
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        },
-      }}
     />
   );
 };
