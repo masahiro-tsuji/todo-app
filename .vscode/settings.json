@@ -23,6 +23,6 @@
   "[jsonc]": {
     "editor.defaultFormatter": "biomejs.biome"
   },
-  "biome.lsp.bin": "${workspaceFolder}/web/node_modules/@biomejs/biome/bin/biome",
+  "biome.lsp.bin": "./web/node_modules/@biomejs/cli-darwin-x64/biome",
   "biome.requireConfiguration": true
 }
