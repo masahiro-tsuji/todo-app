@@ -1,13 +1,11 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { TextField } from '@mui/material';
-import { useForm } from 'react-hook-form';
+import { FormProvider, useForm } from 'react-hook-form';
 import type { UpdateTodoRequestBody } from '@/api/updateTodo';
-import { Dialog } from '@/components';
+import { Dialog, TodoInputForm, type TodoInputFormType, todoInputFormSchema } from '@/components';
 import { useUpdateTodo } from '@/hooks';
 import type { Todo } from '@/types';
-import { type EditTodoForm, editTodoFormSchema } from './types/Schema';
 
 type Props = {
   todo: Todo | null;
@@ -15,30 +13,30 @@ type Props = {
   onClose: () => void;
 };
 
-const emptyValues: EditTodoForm = { title: '', detail: '' };
+const emptyValues: TodoInputFormType = { title: '', detail: '' };
 
 export const EditTodo = ({ todo, isOpen, onClose }: Props) => {
   const { isPendingUpdateTodo, updateTodo } = useUpdateTodo();
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, touchedFields, isSubmitted, dirtyFields },
-  } = useForm<EditTodoForm>({
+  const methods = useForm<TodoInputFormType>({
     mode: 'onBlur',
     reValidateMode: 'onBlur',
-    resolver: zodResolver(editTodoFormSchema),
-    defaultValues: emptyValues,
+    resolver: zodResolver(todoInputFormSchema),
     values: todo ? { title: todo.title, detail: todo.detail ?? '' } : emptyValues,
     resetOptions: { keepErrors: false, keepDirty: false, keepTouched: false, keepIsSubmitted: false },
   });
-  const { ref: titleRef, ...titleField } = register('title');
-  const { ref: detailRef, ...detailField } = register('detail');
+
+  const {
+    handleSubmit,
+    reset,
+    formState: { dirtyFields },
+  } = methods;
 
   const handleClose = () => {
     onClose();
+    reset(emptyValues);
   };
 
-  const onSubmit = async (data: EditTodoForm) => {
+  const onSubmit = async (data: TodoInputFormType) => {
     if (!todo) return;
 
     const body: UpdateTodoRequestBody = {};
@@ -62,24 +60,9 @@ export const EditTodo = ({ todo, isOpen, onClose }: Props) => {
       onPrimaryClick={handleSubmit(onSubmit)}
       primaryLoading={isPendingUpdateTodo}
     >
-      <TextField
-        {...titleField}
-        slotProps={{ htmlInput: { ref: titleRef } }}
-        label='タイトル'
-        error={!!errors.title && (touchedFields.title || isSubmitted)}
-        helperText={touchedFields.title || isSubmitted ? errors.title?.message : undefined}
-        fullWidth
-      />
-      <TextField
-        {...detailField}
-        slotProps={{ htmlInput: { ref: detailRef } }}
-        label='詳細'
-        error={!!errors.detail && (touchedFields.detail || isSubmitted)}
-        helperText={touchedFields.detail || isSubmitted ? errors.detail?.message : undefined}
-        fullWidth
-        multiline
-        minRows={3}
-      />
+      <FormProvider {...methods}>
+        <TodoInputForm />
+      </FormProvider>
     </Dialog>
   );
 };

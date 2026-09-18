@@ -1,29 +1,22 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { TextField } from '@mui/material';
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { Button, Dialog } from '@/components';
+import { FormProvider, useForm } from 'react-hook-form';
+import { Button, Dialog, TodoInputForm, type TodoInputFormType, todoInputFormSchema } from '@/components';
+
 import { useCreateTodo } from '@/hooks';
-import { type CreateTodoForm, createTodoFormSchema } from './types';
 
 export const CreateTodo = () => {
   const { isPendingCreateTodo, createTodo } = useCreateTodo();
   const [open, setOpen] = useState(false);
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors, touchedFields, isSubmitted },
-  } = useForm<CreateTodoForm>({
+  const methods = useForm<TodoInputFormType>({
     mode: 'onBlur',
     reValidateMode: 'onBlur',
-    resolver: zodResolver(createTodoFormSchema),
+    resolver: zodResolver(todoInputFormSchema),
     defaultValues: { title: '', detail: '' },
   });
-  const { ref: titleRef, ...titleField } = register('title');
-  const { ref: detailRef, ...detailField } = register('detail');
+  const { handleSubmit, reset } = methods;
 
   const resetForm = () => {
     reset(
@@ -42,7 +35,7 @@ export const CreateTodo = () => {
     setOpen(false);
   };
 
-  const onSubmit = async (data: CreateTodoForm) => {
+  const onSubmit = async (data: TodoInputFormType) => {
     const params = { title: data.title, detail: data.detail };
     await createTodo(params, { onSuccess: () => handleClose() });
   };
@@ -58,24 +51,9 @@ export const CreateTodo = () => {
         onPrimaryClick={handleSubmit(onSubmit)}
         primaryLoading={isPendingCreateTodo}
       >
-        <TextField
-          {...titleField}
-          slotProps={{ htmlInput: { ref: titleRef } }}
-          label='タイトル'
-          error={!!errors.title && (touchedFields.title || isSubmitted)}
-          helperText={touchedFields.title || isSubmitted ? errors.title?.message : undefined}
-          fullWidth
-        />
-        <TextField
-          {...detailField}
-          slotProps={{ htmlInput: { ref: detailRef } }}
-          label='詳細'
-          error={!!errors.detail && (touchedFields.detail || isSubmitted)}
-          helperText={touchedFields.detail || isSubmitted ? errors.detail?.message : undefined}
-          fullWidth
-          multiline
-          minRows={3}
-        />
+        <FormProvider {...methods}>
+          <TodoInputForm />
+        </FormProvider>
       </Dialog>
     </>
   );
