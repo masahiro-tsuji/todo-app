@@ -2,10 +2,10 @@
 
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import { Box, IconButton } from '@mui/material';
+import { IconButton } from '@mui/material';
 import type { GridColDef } from '@mui/x-data-grid';
 import { useMemo } from 'react';
-import { DataGrid } from '@/components';
+import { DataGrid, DataGridActionsCell } from '@/components';
 import { useGetTodos } from '@/hooks';
 import type { Todo } from '@/types';
 import { formatToYYYYMMDDHHmm } from '@/utils';
@@ -37,16 +37,7 @@ export const TodoList = ({ onOpenEditDialog, onOpenSoftDeleteDialog }: Props) =>
         filterable: false,
         disableColumnMenu: true,
         renderCell: (params) => (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 0.5,
-              width: '100%',
-              height: '100%',
-            }}
-          >
+          <DataGridActionsCell>
             <IconButton
               aria-label={`${params.row.title}を編集`}
               onClick={() => onOpenEditDialog(params.row)}
@@ -61,7 +52,7 @@ export const TodoList = ({ onOpenEditDialog, onOpenSoftDeleteDialog }: Props) =>
             >
               <DeleteIcon />
             </IconButton>
-          </Box>
+          </DataGridActionsCell>
         ),
       },
     ],
@@ -76,15 +67,6 @@ export const TodoList = ({ onOpenEditDialog, onOpenSoftDeleteDialog }: Props) =>
       loading={isPending}
       disableRowSelectionOnClick
       hideFooter
-      sx={{
-        border: 0,
-        '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 'bold' },
-        '& .MuiDataGrid-cell[data-field="actions"]': {
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        },
-      }}
     />
   );
 };

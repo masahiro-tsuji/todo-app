@@ -1,5 +1,6 @@
 export { Button } from './Button';
 export { DataGrid } from './DataGrid';
+export { DataGridActionsCell } from './DataGridActionsCell';
 export { Dialog } from './Dialog';
 export { LoadingIndicator } from './LoadingIndicator';
 export { PagePaper } from './PagePaper';
