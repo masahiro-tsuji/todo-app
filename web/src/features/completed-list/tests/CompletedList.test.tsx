@@ -73,7 +73,7 @@ describe('CompletedList コンポーネントのテスト', () => {
     renderCompletedList();
     completedTodos.forEach((element) => {
       expect(screen.getByText(formatToYYYYMMDDHHmm(element.createdAt))).toBeInTheDocument();
-      expect(screen.getByText(formatToYYYYMMDDHHmm(element.completedAt))).toBeInTheDocument();
+      expect(screen.getByText(formatToYYYYMMDDHHmm(element.completedAt ?? ''))).toBeInTheDocument();
     });
   });
 
