@@ -78,6 +78,7 @@ export const AppHeader = () => {
     <Box component='header' sx={headerSx}>
       <Box sx={navGroupSx}>
         <Link href={routes.list}>TODO一覧</Link>
+        <Link href={routes.completed}>完了済み</Link>
         <Link href={routes.trash}>ゴミ箱</Link>
       </Box>
       <Box sx={navGroupSx}>

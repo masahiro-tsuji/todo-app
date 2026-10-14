@@ -3,13 +3,14 @@ export const routes = {
   login: '/login',
   settings: '/settings',
   trash: '/trash',
+  completed: '/completed',
   newPassword: '/new-password',
   mfaVerify: '/mfa-verify',
 } as const;
 
 export type RoutePath = (typeof routes)[keyof typeof routes];
 
-const PROTECTED_PATHS = [routes.list, routes.settings, routes.trash] as const;
+const PROTECTED_PATHS = [routes.list, routes.settings, routes.trash, routes.completed] as const;
 const GUEST_PATHS = [routes.login, routes.newPassword, routes.mfaVerify] as const;
 
 export const isProtectedPath = (pathname: string) =>
