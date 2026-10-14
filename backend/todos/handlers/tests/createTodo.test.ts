@@ -24,7 +24,11 @@ describe('todo作成APIのテスト', () => {
     expect(res.statusCode).toBe(HttpStatus.CREATED);
     expect(resBody.title).toBe('テスト');
     expect(resBody.detail).toBe('説明テスト');
+    expect(resBody.completed).toBe(false);
+    expect(resBody).not.toHaveProperty('completedAt');
     expect(mockSend).toHaveBeenCalledTimes(1);
+    expect(mockSend.mock.calls[0][0].input.Item.completed).toBe(false);
+    expect(mockSend.mock.calls[0][0].input.Item).not.toHaveProperty('completedAt');
   });
 
   test('bodyがない場合、400エラーを返すこと', async () => {

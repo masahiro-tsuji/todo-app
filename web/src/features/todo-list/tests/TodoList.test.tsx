@@ -13,6 +13,7 @@ const mockTodos = Array(5)
     title: `タイトル${i}`,
     detail: `詳細${i}`,
     createdAt: `2026-01-0${i + 1}T10:00:00.000Z`,
+    completed: false,
   }));
 
 const mockOnOpenEditDialog = jest.fn();

@@ -2,7 +2,7 @@ import { type DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
 import type { APIGatewayProxyEventV2WithJWTAuthorizer, APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
 import { ErrorMessages } from '../constants';
 import { createErrorResponse, createJsonResponse, createZodErrorResponse } from '../libs';
-import { createTodoBodySchema, HttpStatus } from '../types';
+import { createTodoBodySchema, HttpStatus, type Todo } from '../types';
 
 export const createTodo = async (
   dynamoDbClient: DynamoDBDocumentClient,
@@ -23,12 +23,13 @@ export const createTodo = async (
   if (!result.success) return createZodErrorResponse(result.error.issues);
 
   const { data } = result;
-  const item = {
+  const item: Todo = {
     userId: userId,
     id: crypto.randomUUID(),
     title: data.title,
     detail: data.detail,
     createdAt: new Date().toISOString(),
+    completed: false,
   };
   const params = { TableName: process.env.TABLE_NAME, Item: item };
   await dynamoDbClient.send(new PutCommand(params));
