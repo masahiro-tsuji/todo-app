@@ -11,12 +11,14 @@ const mockTrashTodos = [
     title: 'タイトル1',
     detail: '詳細1',
     createdAt: '2026-01-01T10:00:00.000Z',
+    completed: false,
     deletedAt: '2026-01-10T12:00:00.000Z',
   },
   {
     id: '2',
     title: 'タイトル2',
     createdAt: '2026-01-02T10:00:00.000Z',
+    completed: false,
     deletedAt: '2026-01-11T15:30:00.000Z',
   },
 ];
