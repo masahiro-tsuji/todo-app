@@ -14,7 +14,7 @@ type Props = { onOpenUncompleteDialog: (todo: Todo) => void; onOpenSoftDeleteDia
 
 export const CompletedList = ({ onOpenUncompleteDialog, onOpenSoftDeleteDialog }: Props) => {
   const { todos, isPending } = useGetTodos();
-  const completedTodos = useMemo(() => todos.filter((todo) => todo.completed), [todos]);
+  const completedTodos = useMemo(() => todos.filter((todo) => todo.completedAt != null), [todos]);
 
   const columns = useMemo<GridColDef<Todo>[]>(
     () => [

@@ -1,11 +1,13 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { FormProvider, useForm } from 'react-hook-form';
+import { FormControlLabel } from '@mui/material';
+import { type Control, Controller, FormProvider, useForm } from 'react-hook-form';
 import type { UpdateTodoRequestBody } from '@/api/updateTodo';
-import { Dialog, TodoInputForm, type TodoInputFormType, todoInputFormSchema } from '@/components';
+import { Checkbox, Dialog, TodoInputForm } from '@/components';
 import { useUpdateTodo } from '@/hooks';
 import type { Todo } from '@/types';
+import { type EditTodoFormType, editTodoFormSchema } from './types';
 
 type Props = {
   todo: Todo | null;
@@ -13,19 +15,35 @@ type Props = {
   onClose: () => void;
 };
 
-const emptyValues: TodoInputFormType = { title: '', detail: '' };
+type CompletedCheckboxProps = { control: Control<EditTodoFormType> };
+
+const emptyValues: EditTodoFormType = { title: '', detail: '', completed: false };
+
+const CompletedCheckbox = ({ control }: CompletedCheckboxProps) => (
+  <Controller
+    name='completed'
+    control={control}
+    render={({ field: { value, onChange, ref, ...field } }) => (
+      <FormControlLabel
+        control={<Checkbox {...field} ref={ref} checked={value} onChange={(_, checked) => onChange(checked)} />}
+        label='完了にする'
+      />
+    )}
+  />
+);
 
 export const EditTodo = ({ todo, isOpen, onClose }: Props) => {
   const { isPendingUpdateTodo, updateTodo } = useUpdateTodo();
-  const methods = useForm<TodoInputFormType>({
+  const methods = useForm<EditTodoFormType>({
     mode: 'onBlur',
     reValidateMode: 'onBlur',
-    resolver: zodResolver(todoInputFormSchema),
-    values: todo ? { title: todo.title, detail: todo.detail ?? '' } : emptyValues,
+    resolver: zodResolver(editTodoFormSchema),
+    values: todo ? { title: todo.title, detail: todo.detail ?? '', completed: false } : emptyValues,
     resetOptions: { keepErrors: false, keepDirty: false, keepTouched: false, keepIsSubmitted: false },
   });
 
   const {
+    control,
     handleSubmit,
     reset,
     formState: { dirtyFields },
@@ -36,12 +54,13 @@ export const EditTodo = ({ todo, isOpen, onClose }: Props) => {
     reset(emptyValues);
   };
 
-  const onSubmit = async (data: TodoInputFormType) => {
+  const onSubmit = async (data: EditTodoFormType) => {
     if (!todo) return;
 
     const body: UpdateTodoRequestBody = {};
     if (dirtyFields.title) body.title = data.title;
     if (dirtyFields.detail) body.detail = data.detail;
+    if (dirtyFields.completed && data.completed) body.completed = true;
 
     if (Object.keys(body).length === 0) {
       handleClose();
@@ -62,6 +81,7 @@ export const EditTodo = ({ todo, isOpen, onClose }: Props) => {
     >
       <FormProvider {...methods}>
         <TodoInputForm />
+        <CompletedCheckbox control={control} />
       </FormProvider>
     </Dialog>
   );

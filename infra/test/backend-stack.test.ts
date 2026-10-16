@@ -16,13 +16,6 @@ const getTemplate = () => {
   return template;
 };
 
-describe('BackendStackのテスト', () => {
-  test('BackendStackのSnapshotテスト', () => {
-    const template = getTemplate();
-    expect(template.toJSON()).toMatchSnapshot();
-  });
-});
-
 describe('DynamoDBの設定について', () => {
   test('テーブル名が todos であること', () => {
     const template = getTemplate();

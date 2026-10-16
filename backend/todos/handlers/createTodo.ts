@@ -29,7 +29,6 @@ export const createTodo = async (
     title: data.title,
     detail: data.detail,
     createdAt: new Date().toISOString(),
-    completed: false,
   };
   const params = { TableName: process.env.TABLE_NAME, Item: item };
   await dynamoDbClient.send(new PutCommand(params));

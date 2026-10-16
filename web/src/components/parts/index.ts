@@ -1,4 +1,5 @@
 export { Button } from './Button';
+export { Checkbox } from './Checkbox';
 export { DataGrid } from './DataGrid';
 export { DataGridActionsCell } from './DataGridActionsCell';
 export { Dialog } from './Dialog';

@@ -17,7 +17,6 @@ const mockTodo: Todo = {
   title: '既存タイトル',
   detail: '既存詳細',
   createdAt: '2026-01-01T10:00:00.000Z',
-  completed: false,
 };
 
 const renderSoftDeleteTodo = (props?: Partial<{ todo: Todo | null; isOpen: boolean; onClose: () => void }>) => {
