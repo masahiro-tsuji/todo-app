@@ -15,14 +15,9 @@ curl -X POST "https://xxxxxx.execute-api.ap-northeast-1.amazonaws.com/xxx" -H "C
 ### 実行手順
 
 1. `npm test`
-2. `snapshot fail` したら `diff` を確認
-3. `npm run build`
-4. `npm test -- -u` → `npm test`
-5. PRに `.snap`を含める
+2. ルートや LogGroup などを足したら `hasResourceProperties` のテストを追加する
 
-### `npm test -- -u` について
-
-- LogGroupやルートの追加、Lambdaの設定、CDKのバージョンアップをした場合必要になる
+Lambda の asset ハッシュ（`S3Key`）は OS で変わるため、テンプレ全体の snapshot は使わない。
 
 ## エラーの対処
 
