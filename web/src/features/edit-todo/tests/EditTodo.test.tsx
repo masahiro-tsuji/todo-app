@@ -17,7 +17,6 @@ const mockTodo: Todo = {
   title: '既存タイトル',
   detail: '既存詳細',
   createdAt: '2026-01-01T10:00:00.000Z',
-  completed: false,
 };
 
 const renderEditTodo = (props?: Partial<{ todo: Todo | null; isOpen: boolean; onClose: () => void }>) => {
@@ -47,6 +46,7 @@ describe('EditTodo コンポーネントのテスト', () => {
     expect(within(dialog).getByRole('heading', { name: 'TODO編集' })).toBeInTheDocument();
     expect(within(dialog).getByRole('textbox', { name: /タイトル/ })).toHaveValue('既存タイトル');
     expect(within(dialog).getByRole('textbox', { name: /詳細/ })).toHaveValue('既存詳細');
+    expect(within(dialog).getByRole('checkbox', { name: '完了にする' })).not.toBeChecked();
   });
 
   test('タイトル未入力で更新するとバリデーションエラーが表示されること', async () => {
@@ -90,6 +90,37 @@ describe('EditTodo コンポーネントのテスト', () => {
 
     expect(mockUpdateTodo).toHaveBeenCalledWith(
       { id: '1', body: { detail: '新詳細' } },
+      expect.objectContaining({ onSuccess: expect.any(Function) }),
+    );
+  });
+
+  test('完了にするにチェックして更新すると completed: true を送ること', async () => {
+    const user = userEvent.setup();
+    renderEditTodo();
+
+    const dialog = screen.getByRole('dialog');
+    await user.click(within(dialog).getByRole('checkbox', { name: '完了にする' }));
+    await user.click(within(dialog).getByRole('button', { name: '更新' }));
+
+    expect(mockUpdateTodo).toHaveBeenCalledWith(
+      { id: '1', body: { completed: true } },
+      expect.objectContaining({ onSuccess: expect.any(Function) }),
+    );
+  });
+
+  test('タイトル変更と完了を同時に送ること', async () => {
+    const user = userEvent.setup();
+    renderEditTodo();
+
+    const dialog = screen.getByRole('dialog');
+    const titleField = within(dialog).getByRole('textbox', { name: /タイトル/ });
+    await user.clear(titleField);
+    await user.type(titleField, '新タイトル');
+    await user.click(within(dialog).getByRole('checkbox', { name: '完了にする' }));
+    await user.click(within(dialog).getByRole('button', { name: '更新' }));
+
+    expect(mockUpdateTodo).toHaveBeenCalledWith(
+      { id: '1', body: { title: '新タイトル', completed: true } },
       expect.objectContaining({ onSuccess: expect.any(Function) }),
     );
   });

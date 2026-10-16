@@ -1,5 +1,6 @@
 'use client';
 
+import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { IconButton } from '@mui/material';
@@ -10,10 +11,15 @@ import { useGetTodos } from '@/hooks';
 import type { Todo } from '@/types';
 import { formatToYYYYMMDDHHmm } from '@/utils';
 
-type Props = { onOpenEditDialog: (todo: Todo) => void; onOpenSoftDeleteDialog: (todo: Todo) => void };
+type Props = {
+  onOpenEditDialog: (todo: Todo) => void;
+  onOpenCompleteDialog: (todo: Todo) => void;
+  onOpenSoftDeleteDialog: (todo: Todo) => void;
+};
 
-export const TodoList = ({ onOpenEditDialog, onOpenSoftDeleteDialog }: Props) => {
+export const TodoList = ({ onOpenEditDialog, onOpenCompleteDialog, onOpenSoftDeleteDialog }: Props) => {
   const { todos, isPending } = useGetTodos();
+  const activeTodos = useMemo(() => todos.filter((todo) => todo.completedAt == null), [todos]);
 
   const columns = useMemo<GridColDef<Todo>[]>(
     () => [
@@ -30,7 +36,7 @@ export const TodoList = ({ onOpenEditDialog, onOpenSoftDeleteDialog }: Props) =>
       {
         field: 'actions',
         headerName: '操作',
-        width: 100,
+        width: 140,
         headerAlign: 'center',
         align: 'center',
         sortable: false,
@@ -46,6 +52,13 @@ export const TodoList = ({ onOpenEditDialog, onOpenSoftDeleteDialog }: Props) =>
               <EditIcon />
             </IconButton>
             <IconButton
+              aria-label={`${params.row.title}を完了にする`}
+              onClick={() => onOpenCompleteDialog(params.row)}
+              size='small'
+            >
+              <CheckCircleOutlinedIcon />
+            </IconButton>
+            <IconButton
               aria-label={`${params.row.title}を削除`}
               onClick={() => onOpenSoftDeleteDialog(params.row)}
               size='small'
@@ -56,12 +69,12 @@ export const TodoList = ({ onOpenEditDialog, onOpenSoftDeleteDialog }: Props) =>
         ),
       },
     ],
-    [onOpenEditDialog, onOpenSoftDeleteDialog],
+    [onOpenEditDialog, onOpenCompleteDialog, onOpenSoftDeleteDialog],
   );
 
   return (
     <DataGrid
-      rows={todos}
+      rows={activeTodos}
       columns={columns}
       getRowId={(row) => row.id}
       loading={isPending}

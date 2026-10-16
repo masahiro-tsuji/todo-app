@@ -16,6 +16,7 @@ export const updateTodo = async (
   const userId = event.requestContext.authorizer.jwt.claims.sub as string;
   let body: unknown;
   const updates: string[] = [];
+  const removes: string[] = [];
   const values: Record<string, string> = {};
   // TODO: 共通化
   try {
@@ -36,13 +37,25 @@ export const updateTodo = async (
     updates.push('detail = :detail');
     values[':detail'] = data.detail;
   }
+  if (data.completed !== undefined) {
+    if (data.completed) {
+      updates.push('completedAt = :completedAt');
+      values[':completedAt'] = new Date().toISOString();
+    } else {
+      removes.push('completedAt');
+    }
+  }
+
+  const expressionParts: string[] = [];
+  if (updates.length > 0) expressionParts.push(`SET ${updates.join(',')}`);
+  if (removes.length > 0) expressionParts.push(`REMOVE ${removes.join(',')}`);
 
   const input = {
     TableName: process.env.TABLE_NAME,
     Key: { userId, id }, // NOTE: userId, id(todoId) が一致する行を更新対象とする（partitionKey が userId, sortKey が id）
     ConditionExpression: 'attribute_exists(id)', // NOTE: id が合致する場合更新する（仕様上、存在しないidだった場合、新規作成してしまうため）
-    UpdateExpression: `SET ${updates.join(',')}`,
-    ExpressionAttributeValues: values,
+    UpdateExpression: expressionParts.join(' '),
+    ...(Object.keys(values).length > 0 ? { ExpressionAttributeValues: values } : {}),
     ReturnValues: 'ALL_NEW',
   } as UpdateCommandInput;
 

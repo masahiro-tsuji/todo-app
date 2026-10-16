@@ -5,7 +5,6 @@ export type Todo = {
   id: string;
   title: string;
   createdAt: string;
-  completed: boolean;
   detail?: string;
   deletedAt?: string;
   completedAt?: string;
@@ -21,7 +20,8 @@ export type CreateTodoRequestBody = z.infer<typeof createTodoBodySchema>;
 /** TODO更新スキーマ */
 export const updateTodoRequestSchema = createTodoBodySchema
   .partial()
-  .refine((data) => data.title !== undefined || data.detail !== undefined, {
+  .extend({ completed: z.boolean().optional() })
+  .refine((data) => data.title !== undefined || data.detail !== undefined || data.completed !== undefined, {
     message: '更新する項目を1つ以上指定してください',
   });
 export type UpdateTodoRequestBody = z.infer<typeof updateTodoRequestSchema>;

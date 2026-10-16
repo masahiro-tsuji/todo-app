@@ -79,6 +79,65 @@ describe('更新処理APIの成功テスト', () => {
   });
 });
 
+describe('完了日時の更新テスト', () => {
+  beforeEach(() => {
+    mockSend.mockClear();
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date('2026-10-15T06:00:00.000Z'));
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  test('completed が true のとき completedAt を SET すること', async () => {
+    mockSend.mockResolvedValueOnce({
+      Attributes: {
+        id: '12345',
+        userId: demoUserObj.userId,
+        title: 'テスト',
+        createdAt: '2026-08-05T07:23:15.323Z',
+        completedAt: '2026-10-15T06:00:00.000Z',
+      },
+    });
+    const body = JSON.stringify({ completed: true });
+    const result = await updateTodo(mockClient, { ...baseEvent, body });
+
+    const command = mockSend.mock.calls[0][0];
+
+    expect(command.input.UpdateExpression).toBe('SET completedAt = :completedAt');
+    expect(command.input.ExpressionAttributeValues).toEqual({
+      ':completedAt': '2026-10-15T06:00:00.000Z',
+    });
+    expect(result.statusCode).toBe(HttpStatus.OK);
+    expect(JSON.parse(result.body ?? '')).toMatchObject({
+      completedAt: '2026-10-15T06:00:00.000Z',
+    });
+    expect(JSON.parse(result.body ?? '')).not.toHaveProperty('completed');
+  });
+
+  test('completed が false のとき completedAt を REMOVE すること', async () => {
+    mockSend.mockResolvedValueOnce({
+      Attributes: {
+        id: '12345',
+        userId: demoUserObj.userId,
+        title: 'テスト',
+        createdAt: '2026-08-05T07:23:15.323Z',
+      },
+    });
+    const body = JSON.stringify({ completed: false });
+    const result = await updateTodo(mockClient, { ...baseEvent, body });
+
+    const command = mockSend.mock.calls[0][0];
+
+    expect(command.input.UpdateExpression).toBe('REMOVE completedAt');
+    expect(command.input.ExpressionAttributeValues).toBeUndefined();
+    expect(result.statusCode).toBe(HttpStatus.OK);
+    expect(JSON.parse(result.body ?? '')).not.toHaveProperty('completedAt');
+    expect(JSON.parse(result.body ?? '')).not.toHaveProperty('completed');
+  });
+});
+
 describe('更新処理APIのエラーテスト', () => {
   beforeEach(() => {
     mockSend.mockClear();

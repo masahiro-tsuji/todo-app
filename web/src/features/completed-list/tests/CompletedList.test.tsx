@@ -11,26 +11,23 @@ const mockTodos = [
     title: '未完了タイトル',
     detail: '未完了詳細',
     createdAt: '2026-01-01T10:00:00.000Z',
-    completed: false,
   },
   {
     id: '1',
     title: 'タイトル1',
     detail: '詳細1',
     createdAt: '2026-01-02T10:00:00.000Z',
-    completed: true,
     completedAt: '2026-01-03T11:00:00.000Z',
   },
   {
     id: '2',
     title: 'タイトル2',
     createdAt: '2026-01-04T10:00:00.000Z',
-    completed: true,
     completedAt: '2026-01-05T12:30:00.000Z',
   },
 ];
 
-const completedTodos = mockTodos.filter((todo) => todo.completed);
+const completedTodos = mockTodos.filter((todo) => todo.completedAt != null);
 const mockOnOpenUncompleteDialog = jest.fn();
 const mockOnOpenSoftDeleteDialog = jest.fn();
 
