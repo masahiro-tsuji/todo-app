@@ -17,7 +17,7 @@ export const restoreTodo = async (
     TableName: process.env.TABLE_NAME,
     Key: { userId, id },
     ConditionExpression: 'attribute_exists(id) AND attribute_exists(deletedAt)',
-    UpdateExpression: 'REMOVE deletedAt',
+    UpdateExpression: 'REMOVE deletedAt', // NOTE: completedAt は残す（完了済みは完了済み一覧へ戻す）
     ReturnValues: 'ALL_NEW',
   } as UpdateCommandInput;
 

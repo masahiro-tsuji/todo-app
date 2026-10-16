@@ -9,7 +9,7 @@ import { useMemo } from 'react';
 import { DataGrid, DataGridActionsCell } from '@/components';
 import { useGetTodos } from '@/hooks';
 import type { Todo } from '@/types';
-import { formatToYYYYMMDDHHmm } from '@/utils';
+import { formatToYYYYMMDDHHmm, isCompletedTodo } from '@/utils';
 
 type Props = {
   onOpenEditDialog: (todo: Todo) => void;
@@ -19,7 +19,7 @@ type Props = {
 
 export const TodoList = ({ onOpenEditDialog, onOpenCompleteDialog, onOpenSoftDeleteDialog }: Props) => {
   const { todos, isPending } = useGetTodos();
-  const activeTodos = useMemo(() => todos.filter((todo) => todo.completedAt == null), [todos]);
+  const activeTodos = useMemo(() => todos.filter((todo) => !isCompletedTodo(todo)), [todos]);
 
   const columns = useMemo<GridColDef<Todo>[]>(
     () => [

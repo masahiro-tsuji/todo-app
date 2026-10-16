@@ -8,13 +8,13 @@ import { useMemo } from 'react';
 import { DataGrid, DataGridActionsCell } from '@/components';
 import { useGetTodos } from '@/hooks';
 import type { Todo } from '@/types';
-import { formatToYYYYMMDDHHmm } from '@/utils';
+import { formatToYYYYMMDDHHmm, isCompletedTodo } from '@/utils';
 
 type Props = { onOpenUncompleteDialog: (todo: Todo) => void; onOpenSoftDeleteDialog: (todo: Todo) => void };
 
 export const CompletedList = ({ onOpenUncompleteDialog, onOpenSoftDeleteDialog }: Props) => {
   const { todos, isPending } = useGetTodos();
-  const completedTodos = useMemo(() => todos.filter((todo) => todo.completedAt != null), [todos]);
+  const completedTodos = useMemo(() => todos.filter(isCompletedTodo), [todos]);
 
   const columns = useMemo<GridColDef<Todo>[]>(
     () => [

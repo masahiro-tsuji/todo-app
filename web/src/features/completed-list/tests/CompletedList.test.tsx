@@ -52,7 +52,7 @@ describe('CompletedList コンポーネントのテスト', () => {
     mockOnOpenSoftDeleteDialog.mockClear();
   });
 
-  test('完了済みのTODOのみ表示されること', () => {
+  test('completedAt がある TODO のみ完了済み一覧に表示されること', () => {
     renderCompletedList();
     completedTodos.forEach((element) => {
       expect(screen.getByText(element.title)).toBeInTheDocument();
