@@ -44,7 +44,7 @@ describe('CompleteTodo コンポーネントのテスト', () => {
     renderCompleteTodo();
 
     const dialog = screen.getByRole('dialog');
-    expect(within(dialog).getByRole('heading', { name: '完了にする' })).toBeInTheDocument();
+    expect(within(dialog).getByRole('heading', { name: '確認' })).toBeInTheDocument();
     expect(within(dialog).getByText('「既存タイトル」を完了にしますか？')).toBeInTheDocument();
     expect(within(dialog).getByRole('button', { name: '完了' })).toBeInTheDocument();
   });
