@@ -46,6 +46,36 @@ describe('復元APIの成功テスト', () => {
   });
 });
 
+describe('完了済みTODOの復元テスト', () => {
+  beforeEach(() => {
+    mockSend.mockClear();
+    mockSend.mockResolvedValueOnce({
+      Attributes: {
+        id: '12345',
+        userId: demoUserObj.userId,
+        title: '完了済みテスト',
+        createdAt: '2026-08-05T07:23:15.323Z',
+        completedAt: '2026-10-15T06:00:00.000Z',
+      },
+    });
+  });
+
+  test('completedAt がある TODO は deletedAt のみ外し completedAt を残すこと', async () => {
+    const result = await restoreTodo(mockClient, baseEvent);
+    const command = mockSend.mock.calls[0][0];
+    const body = JSON.parse(result.body ?? '');
+
+    expect(command.input.UpdateExpression).toBe('REMOVE deletedAt');
+    expect(result.statusCode).toBe(HttpStatus.OK);
+    expect(body).toMatchObject({
+      id: '12345',
+      title: '完了済みテスト',
+      completedAt: '2026-10-15T06:00:00.000Z',
+    });
+    expect(body).not.toHaveProperty('deletedAt');
+  });
+});
+
 describe('復元APIのエラーテスト', () => {
   beforeEach(() => {
     mockSend.mockClear();
