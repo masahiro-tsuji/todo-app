@@ -11,6 +11,9 @@ const baseEvent = {
   rawPath: '/todos',
 } as unknown as APIGatewayProxyEventV2WithJWTAuthorizer;
 
+const eventWithStatus = (status: string) =>
+  ({ ...baseEvent, queryStringParameters: { status } }) as unknown as APIGatewayProxyEventV2WithJWTAuthorizer;
+
 describe('一覧取得のテスト', () => {
   beforeEach(() => {
     mockSend.mockClear();
@@ -58,5 +61,62 @@ describe('一覧取得のテスト', () => {
     const responseBody = JSON.parse(response?.body ?? '');
     expect(response.statusCode).toBe(HttpStatus.OK);
     expect(responseBody).toHaveLength(0);
+  });
+
+  test('status=active のとき未削除かつ未完了のみを取得すること', async () => {
+    mockSend.mockReturnValue({ Items: [] });
+    await getTodos(mockClient, eventWithStatus('active'));
+    expect(mockSend).toHaveBeenCalledWith(
+      expect.objectContaining({
+        input: expect.objectContaining({
+          FilterExpression: 'attribute_not_exists(deletedAt) AND attribute_not_exists(completedAt)',
+        }),
+      }),
+    );
+  });
+
+  test('status=completed のとき未削除かつ完了済みのみを取得すること', async () => {
+    mockSend.mockReturnValue({ Items: [] });
+    await getTodos(mockClient, eventWithStatus('completed'));
+    expect(mockSend).toHaveBeenCalledWith(
+      expect.objectContaining({
+        input: expect.objectContaining({
+          FilterExpression: 'attribute_not_exists(deletedAt) AND attribute_exists(completedAt)',
+        }),
+      }),
+    );
+  });
+
+  test('status=trashed のとき削除済みのみを取得すること', async () => {
+    mockSend.mockReturnValue({
+      Items: [
+        {
+          userId: demoUserObj.userId,
+          id: '1',
+          title: 'A',
+          createdAt: '2026-01-01T09:00:00.000Z',
+          deletedAt: '2026-01-10T09:00:00.000Z',
+        },
+        {
+          userId: demoUserObj.userId,
+          id: '2',
+          title: 'B',
+          createdAt: '2026-01-02T09:00:00.000Z',
+          deletedAt: '2026-01-11T09:00:00.000Z',
+        },
+      ],
+    });
+    const response = await getTodos(mockClient, eventWithStatus('trashed'));
+    const responseBody = JSON.parse(response?.body ?? '');
+    expect(mockSend).toHaveBeenCalledWith(
+      expect.objectContaining({
+        input: expect.objectContaining({
+          FilterExpression: 'attribute_exists(deletedAt)',
+        }),
+      }),
+    );
+    expect(response.statusCode).toBe(HttpStatus.OK);
+    expect(responseBody[0].deletedAt).toBe('2026-01-11T09:00:00.000Z');
+    expect(responseBody[1].deletedAt).toBe('2026-01-10T09:00:00.000Z');
   });
 });

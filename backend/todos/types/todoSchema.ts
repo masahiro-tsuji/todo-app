@@ -25,3 +25,7 @@ export const updateTodoRequestSchema = createTodoBodySchema
     message: '更新する項目を1つ以上指定してください',
   });
 export type UpdateTodoRequestBody = z.infer<typeof updateTodoRequestSchema>;
+
+/** TODO一覧取得の status クエリ */
+export const todosStatusSchema = z.enum(['active', 'completed', 'trashed']);
+export type TodosStatus = z.infer<typeof todosStatusSchema>;

@@ -8,7 +8,7 @@ export const getTrashTodos = async (
   event: APIGatewayProxyEventV2WithJWTAuthorizer,
 ): Promise<APIGatewayProxyStructuredResultV2> => {
   const userId = event.requestContext.authorizer.jwt.claims.sub as string;
-  const todos = await queryTodosByUserId(dynamoDbClient, userId, 'trash');
+  const todos = await queryTodosByUserId(dynamoDbClient, userId, 'trashed');
 
   return createJsonResponse(HttpStatus.OK, todos);
 };
