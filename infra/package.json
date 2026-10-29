@@ -14,7 +14,7 @@
     "@biomejs/biome": "2.5.5",
     "@types/jest": "^30",
     "@types/node": "^24.13.3",
-    "aws-cdk": "2.1130.0",
+    "aws-cdk": "^2.1146.1",
     "esbuild": "^0.28.1",
     "jest": "^30",
     "ts-jest": "^29",
@@ -22,7 +22,7 @@
     "typescript": "~5.9.3"
   },
   "dependencies": {
-    "aws-cdk-lib": "^2.269.0",
+    "aws-cdk-lib": "^2.275.0",
     "constructs": "^10.5.0"
   }
 }

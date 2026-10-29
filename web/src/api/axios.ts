@@ -30,37 +30,29 @@ class AxiosClient {
     return config;
   };
 
-  public async get<T = any, R = AxiosResponse<T>, D = any>(url: string, config?: AxiosRequestConfig<D>): Promise<R> {
+  public async get<T = any, D = any>(url: string, config?: AxiosRequestConfig<D>): Promise<AxiosResponse<T>> {
     const customConfig = this.setHeader(config);
-    return await this.axiosInstance.get(url, customConfig);
+    return await this.axiosInstance.get<T, AxiosResponse<T>, D>(url, customConfig);
   }
-  public async post<T = any, R = AxiosResponse<T>, D = any>(
-    url: string,
-    data: D,
-    config?: AxiosRequestConfig<D>,
-  ): Promise<R> {
+  public async post<T = any, D = any>(url: string, data: D, config?: AxiosRequestConfig<D>): Promise<AxiosResponse<T>> {
     const customConfig = this.setHeader(config);
-    return await this.axiosInstance.post(url, data, customConfig);
+    return await this.axiosInstance.post<T, AxiosResponse<T>, D>(url, data, customConfig);
   }
-  public async put<T = any, R = AxiosResponse<T>, D = any>(
-    url: string,
-    data?: D,
-    config?: AxiosRequestConfig<D>,
-  ): Promise<R> {
+  public async put<T = any, D = any>(url: string, data?: D, config?: AxiosRequestConfig<D>): Promise<AxiosResponse<T>> {
     const customConfig = this.setHeader(config);
-    return await this.axiosInstance.put(url, data, customConfig);
+    return await this.axiosInstance.put<T, AxiosResponse<T>, D>(url, data, customConfig);
   }
-  public async patch<T = any, R = AxiosResponse<T>, D = any>(
+  public async patch<T = any, D = any>(
     url: string,
     data?: D,
     config?: AxiosRequestConfig<D>,
-  ): Promise<R> {
+  ): Promise<AxiosResponse<T>> {
     const customConfig = this.setHeader(config);
-    return await this.axiosInstance.patch(url, data, customConfig);
+    return await this.axiosInstance.patch<T, AxiosResponse<T>, D>(url, data, customConfig);
   }
-  public async delete<T = any, R = AxiosResponse<T>, D = any>(url: string, config?: AxiosRequestConfig<D>): Promise<R> {
+  public async delete<T = any, D = any>(url: string, config?: AxiosRequestConfig<D>): Promise<AxiosResponse<T>> {
     const customConfig = this.setHeader(config);
-    return await this.axiosInstance.delete(url, customConfig);
+    return await this.axiosInstance.delete<T, AxiosResponse<T>, D>(url, customConfig);
   }
 }
 
