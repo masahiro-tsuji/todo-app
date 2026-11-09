@@ -1,5 +1,7 @@
 *.js
 !jest.config.js
+# Cloudfront functions のソースをコミットさせるため
+!cloudfront-functions/rewriteUrl.js
 *.d.ts
 node_modules
 

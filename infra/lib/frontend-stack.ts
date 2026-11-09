@@ -1,3 +1,4 @@
+import * as path from 'node:path';
 import * as cdk from 'aws-cdk-lib';
 import {
   aws_cloudfront as cloudfront,
@@ -26,17 +27,27 @@ export class FrontendStack extends cdk.Stack {
       originAccessLevels: [cloudfront.AccessLevel.READ, cloudfront.AccessLevel.LIST],
     });
 
+    // NOTE: 静的書き出しの実体は list.html。ブラウザの /list を viewer request で list.html に読み替える
+    const rewriteUrl = new cloudfront.Function(this, 'RewriteUrl', {
+      comment: '拡張子の無いパスを対応する .html に読み替える',
+      code: cloudfront.FunctionCode.fromFile({
+        filePath: path.join(__dirname, '../cloudfront-functions/rewriteUrl.js'),
+      }),
+      runtime: cloudfront.FunctionRuntime.JS_2_0,
+    });
+
     const distribution = new cloudfront.Distribution(this, 'TodoDistribution', {
-      defaultBehavior: { origin: s3Origin, viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS },
+      defaultBehavior: {
+        origin: s3Origin, // S3 からファイルを取得する
+        viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS, // HTTP リクエストを HTTPS にリダイレクトする
+        /**
+         * 拡張子の無いパスを対応する .html に読み替える。
+         * functionAssociations では、特定のイベントに対して特定の関数を適用
+         * eventType は、VIEWER_REQUEST ではブラウザからのリクエスト時に関数を適用
+         */
+        functionAssociations: [{ function: rewriteUrl, eventType: cloudfront.FunctionEventType.VIEWER_REQUEST }],
+      },
       defaultRootObject: 'index.html',
-      // NOTE: アドレスバーで /list とした時のエラー防止
-      errorResponses: [
-        {
-          httpStatus: 404, // S3 が 404 を返したとき
-          responseHttpStatus: 200, // 200 を返すようにする
-          responsePagePath: '/index.html', // index.html を返す
-        },
-      ],
     });
 
     new cdk.CfnOutput(this, 'WebSiteUrl', {
