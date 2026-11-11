@@ -6,12 +6,14 @@ export const routes = {
   completed: '/completed',
   newPassword: '/new-password',
   mfaVerify: '/mfa-verify',
+  signup: '/signup',
+  confirmSignup: '/confirm-signup',
 } as const;
 
 export type RoutePath = (typeof routes)[keyof typeof routes];
 
 const PROTECTED_PATHS = [routes.list, routes.settings, routes.trash, routes.completed] as const;
-const GUEST_PATHS = [routes.login, routes.newPassword, routes.mfaVerify] as const;
+const GUEST_PATHS = [routes.login, routes.newPassword, routes.mfaVerify, routes.signup, routes.confirmSignup] as const;
 
 export const isProtectedPath = (pathname: string) =>
   PROTECTED_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));
