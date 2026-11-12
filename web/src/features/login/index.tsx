@@ -1,9 +1,11 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Box, Paper, TextField, Typography } from '@mui/material';
+import { Box, Link, Paper, TextField, Typography } from '@mui/material';
+import NextLink from 'next/link';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components';
+import { routes } from '@/constants/routes';
 import { useAuth } from '@/hooks';
 import { type LoginForm, loginFormSchema } from './types';
 
@@ -54,6 +56,9 @@ export const Login = () => {
           </Typography>
         )}
         <Button name='ログイン' type='submit' variant='contained' fullWidth loading={isLoading} />
+        <Link component={NextLink} href={routes.signup} variant='body2' sx={{ textAlign: 'center' }}>
+          ユーザー登録へ
+        </Link>
       </Box>
     </Paper>
   );

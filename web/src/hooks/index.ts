@@ -1,4 +1,5 @@
 export * from './useAuth';
+export * from './useConfirmSignUp';
 export * from './useCreateTodo';
 export * from './useDialogState';
 export * from './useGetMfaState';
@@ -8,6 +9,7 @@ export * from './usePermanentDelete';
 export * from './useQueries';
 export * from './useRestore';
 export * from './useSetupTotp';
+export * from './useSignUp';
 export * from './useSoftDelete';
 export * from './useUpdateMfaPreference';
 export * from './useUpdateTodo';
