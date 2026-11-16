@@ -34,6 +34,7 @@ export const MfaSettings = () => {
   const { isPendingSetupTotp, setupTotp, totpSetupDetails, resetSetupTotp } = useSetupTotp();
   const { isOpen: isSetupDialogOpen, onOpen: openSetupDialog, onClose: closeSetupDialog } = useDialogState();
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>();
+  const [setupErrorMessage, setSetupErrorMessage] = useState('');
   const isSwitchLoading = isPendingMfaState || isPendingUpdateMfaPreference;
   const isSetupPending = isPendingVerifyTotpSetup || isPendingUpdateMfaPreference;
   const setupTotpUri = totpSetupDetails?.getSetupUri(TOTP_APP_NAME).href;
@@ -67,6 +68,7 @@ export const MfaSettings = () => {
   }, [setupTotpUri]);
 
   const onCloseSetupDialog = () => {
+    setSetupErrorMessage('');
     reset();
     resetSetupTotp();
     closeSetupDialog();
@@ -91,8 +93,23 @@ export const MfaSettings = () => {
   };
 
   const onEnable = async ({ code }: MfaSetupFormValues) => {
-    await verifyTotpSetup(code);
-    await updateMfaPreference(true, { onSuccess: onCloseSetupDialog });
+    setSetupErrorMessage('');
+
+    if (shouldTotpSetup) {
+      try {
+        await verifyTotpSetup(code);
+      } catch {
+        setSetupErrorMessage('認証コードの確認に失敗しました。コードを確認して、もう一度お試しください');
+        return;
+      }
+    }
+    try {
+      await updateMfaPreference(true, { onSuccess: onCloseSetupDialog });
+    } catch {
+      setSetupErrorMessage(
+        '認証コードの確認は成功しています。多要素認証の有効化に失敗しました。\nキャンセル後、もう一度スイッチを ON にしてください。',
+      );
+    }
   };
 
   const onPrimaryClick = handleSubmit(onEnable);
@@ -133,6 +150,11 @@ export const MfaSettings = () => {
           helperText={errors.code?.message}
           fullWidth
         />
+        {setupErrorMessage && (
+          <Typography color='error' variant='body2' sx={{ whiteSpace: 'pre-line' }}>
+            {setupErrorMessage}
+          </Typography>
+        )}
       </Dialog>
     </>
   );
