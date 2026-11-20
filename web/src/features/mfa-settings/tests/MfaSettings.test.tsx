@@ -117,6 +117,89 @@ describe('MfaSettings コンポーネントのテスト', () => {
     expect(updateMFAPreference).toHaveBeenCalledWith({ totp: 'PREFERRED' });
   });
 
+  test('認証コードの確認に失敗した場合はダイアログを開いたままエラーを表示すること', async () => {
+    jest.mocked(verifyTOTPSetup).mockRejectedValue(new Error('verify failed'));
+    renderMfaSettings();
+
+    await userEvent.click(await screen.findByRole('switch', { name: /現在.*無効/ }));
+    const setupDialog = await waitFor(() => getSetupDialog());
+    await userEvent.type(within(setupDialog).getByLabelText(/認証コード/), '123456');
+    await userEvent.click(within(setupDialog).getByRole('button', { name: '有効化' }));
+
+    await waitFor(() => {
+      expect(
+        within(getSetupDialog()).getByText('認証コードの確認に失敗しました。コードを確認して、もう一度お試しください'),
+      ).toBeInTheDocument();
+    });
+    expect(updateMFAPreference).not.toHaveBeenCalled();
+  });
+
+  test('設定更新に失敗した場合はダイアログを開いたまま復旧手順を表示すること', async () => {
+    jest.mocked(updateMFAPreference).mockRejectedValue(new Error('update failed'));
+    renderMfaSettings();
+
+    await userEvent.click(await screen.findByRole('switch', { name: /現在.*無効/ }));
+    const setupDialog = await waitFor(() => getSetupDialog());
+    await userEvent.type(within(setupDialog).getByLabelText(/認証コード/), '123456');
+    await userEvent.click(within(setupDialog).getByRole('button', { name: '有効化' }));
+
+    await waitFor(() => {
+      expect(within(getSetupDialog()).getByText(/有効化に失敗しました/).textContent).toBe(
+        '認証コードの確認は成功しています。多要素認証の有効化に失敗しました。\nキャンセル後、もう一度スイッチを ON にしてください。',
+      );
+    });
+    expect(verifyTOTPSetup).toHaveBeenCalledWith({ code: '123456' });
+  });
+
+  test('設定更新の失敗後に再実行した場合は認証コードの確認をスキップすること', async () => {
+    jest.mocked(updateMFAPreference).mockRejectedValueOnce(new Error('update failed'));
+    renderMfaSettings();
+
+    await userEvent.click(await screen.findByRole('switch', { name: /現在.*無効/ }));
+    const setupDialog = await waitFor(() => getSetupDialog());
+    const codeInput = within(setupDialog).getByLabelText(/認証コード/);
+    await userEvent.type(codeInput, '123456');
+    await userEvent.click(within(setupDialog).getByRole('button', { name: '有効化' }));
+
+    await waitFor(() => {
+      expect(within(getSetupDialog()).getByText(/有効化に失敗しました/)).toBeInTheDocument();
+    });
+
+    await userEvent.click(within(getSetupDialog()).getByRole('button', { name: '有効化' }));
+
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog', { name: '多要素認証のセットアップ' })).not.toBeInTheDocument();
+    });
+    expect(verifyTOTPSetup).toHaveBeenCalledTimes(1);
+    expect(updateMFAPreference).toHaveBeenCalledTimes(2);
+  });
+
+  test('設定更新の失敗後にスイッチを入れ直した場合はQRを出さず有効化だけ実行すること', async () => {
+    jest.mocked(updateMFAPreference).mockRejectedValueOnce(new Error('update failed'));
+    renderMfaSettings();
+
+    await userEvent.click(await screen.findByRole('switch', { name: /現在.*無効/ }));
+    const setupDialog = await waitFor(() => getSetupDialog());
+    await userEvent.type(within(setupDialog).getByLabelText(/認証コード/), '123456');
+    await userEvent.click(within(setupDialog).getByRole('button', { name: '有効化' }));
+
+    await waitFor(() => {
+      expect(within(getSetupDialog()).getByText(/有効化に失敗しました/)).toBeInTheDocument();
+    });
+
+    await userEvent.click(within(getSetupDialog()).getByRole('button', { name: 'キャンセル' }));
+    await userEvent.click(await screen.findByRole('switch', { name: /現在.*無効/ }));
+
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog', { name: '多要素認証のセットアップ' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('img', { name: 'QRコード' })).not.toBeInTheDocument();
+      expect(screen.getByRole('switch', { name: /現在.*有効/ })).toBeChecked();
+    });
+    expect(verifyTOTPSetup).toHaveBeenCalledTimes(1);
+    expect(setUpTOTP).toHaveBeenCalledTimes(1);
+    expect(updateMFAPreference).toHaveBeenCalledTimes(2);
+  });
+
   test('有効化後にスイッチをOFFにすると確認ダイアログが表示されること', async () => {
     renderMfaSettings();
 

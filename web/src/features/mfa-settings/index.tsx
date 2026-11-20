@@ -1,36 +1,30 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Box, CircularProgress, Divider, FormControlLabel, Typography } from '@mui/material';
-import { type ChangeEvent, useEffect } from 'react';
-import { FormProvider, useForm } from 'react-hook-form';
-import { Switch, useConfirmDialogContext } from '@/components';
+import { Box, CircularProgress, type SxProps, Typography } from '@mui/material';
+import QRCode from 'qrcode';
+import { type ChangeEvent, useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { Dialog, TextField, useConfirmDialogContext } from '@/components';
 import { useDialogState, useGetMfaState, useSetupTotp, useUpdateMfaPreference, useVerifyTotpSetup } from '@/hooks';
-import { MfaSetupDialog } from './components/MfaSetupDialog';
+import { MfaEnableSwitch } from './components/MfaEnableSwitch';
 import { type MfaSetupForm as MfaSetupFormValues, mfaSetupFormSchema } from './types';
 
 const TOTP_APP_NAME = 'Todo App';
 
-type MfaSwitchLabelProps = {
-  checked: boolean;
-  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+const qrCodeAreaSx: SxProps = {
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: 1,
+  py: 3,
+  minHeight: 200,
+  border: 1,
+  borderColor: 'divider',
+  borderRadius: 1,
+  bgcolor: 'background.paper',
 };
-
-const MfaSwitchLabel = ({ checked, onChange }: MfaSwitchLabelProps) => (
-  <FormControlLabel
-    labelPlacement='start'
-    control={<Switch checked={checked} onChange={onChange} />}
-    label={
-      <>
-        現在：
-        <Box component='span' sx={{ fontWeight: 'bold' }}>
-          {checked ? '有効' : '無効'}
-        </Box>
-      </>
-    }
-    sx={{ m: 0 }}
-  />
-);
 
 export const MfaSettings = () => {
   const { displayConfirm } = useConfirmDialogContext();
@@ -39,15 +33,24 @@ export const MfaSettings = () => {
   const { isPendingVerifyTotpSetup, verifyTotpSetup } = useVerifyTotpSetup();
   const { isPendingSetupTotp, setupTotp, totpSetupDetails, resetSetupTotp } = useSetupTotp();
   const { isOpen: isSetupDialogOpen, onOpen: openSetupDialog, onClose: closeSetupDialog } = useDialogState();
+  const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>();
+  const [setupErrorMessage, setSetupErrorMessage] = useState('');
+  const [hasVerifiedTotp, setHasVerifiedTotp] = useState(false);
+  const needsTotpSetup = shouldTotpSetup && !hasVerifiedTotp;
   const isSwitchLoading = isPendingMfaState || isPendingUpdateMfaPreference;
+  const isSetupPending = isPendingVerifyTotpSetup || isPendingUpdateMfaPreference;
   const setupTotpUri = totpSetupDetails?.getSetupUri(TOTP_APP_NAME).href;
 
-  const methods = useForm<MfaSetupFormValues>({
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<MfaSetupFormValues>({
     mode: 'all',
     resolver: zodResolver(mfaSetupFormSchema),
     defaultValues: { code: '' },
   });
-  const { handleSubmit, reset } = methods;
 
   const isSwitchChecked = isMfaEnabled || isSetupDialogOpen;
 
@@ -55,53 +58,106 @@ export const MfaSettings = () => {
     if (isSetupDialogOpen) setupTotp();
   }, [isSetupDialogOpen, setupTotp]);
 
+  useEffect(() => {
+    if (!setupTotpUri) {
+      setQrCodeDataUrl(undefined);
+      return;
+    }
+
+    QRCode.toDataURL(setupTotpUri)
+      .then(setQrCodeDataUrl)
+      .catch(() => setQrCodeDataUrl(undefined));
+  }, [setupTotpUri]);
+
   const onCloseSetupDialog = () => {
+    setSetupErrorMessage('');
     reset();
     resetSetupTotp();
     closeSetupDialog();
   };
 
+  /**
+   * 多要素認証のスイッチを変更したときの処理
+   * TOTPの確認がまだの場合、ダイアログを開く
+   * 確認済み、またはTOTP登録済みの場合は多要素認証を有効にする
+   * @param event - スイッチの変更イベント
+   */
   const onChangeEnableSwitch = async (event: ChangeEvent<HTMLInputElement>) => {
     if (!event.target.checked) {
-      const onClickOk = async () => await updateMfaPreference(false);
-      displayConfirm({ content: '多要素認証を無効にしますか？', onClickOk });
+      displayConfirm({
+        content: '多要素認証を無効にしますか？',
+        onClickOk: async () => await updateMfaPreference(false),
+      });
       return;
     }
-    if (shouldTotpSetup) openSetupDialog();
+    if (needsTotpSetup) openSetupDialog();
     else await updateMfaPreference(true);
   };
 
   const onEnable = async ({ code }: MfaSetupFormValues) => {
-    await verifyTotpSetup(code);
-    await updateMfaPreference(true, { onSuccess: onCloseSetupDialog });
+    setSetupErrorMessage('');
+
+    if (needsTotpSetup) {
+      try {
+        await verifyTotpSetup(code, { onSuccess: () => setHasVerifiedTotp(true) });
+      } catch {
+        setSetupErrorMessage('認証コードの確認に失敗しました。コードを確認して、もう一度お試しください');
+        return;
+      }
+    }
+    try {
+      await updateMfaPreference(true, { onSuccess: onCloseSetupDialog });
+    } catch {
+      setSetupErrorMessage(
+        '認証コードの確認は成功しています。多要素認証の有効化に失敗しました。\nキャンセル後、もう一度スイッチを ON にしてください。',
+      );
+    }
   };
 
+  const onPrimaryClick = handleSubmit(onEnable);
+
   return (
-    <Box sx={{ mt: 3 }}>
-      <Divider sx={{ mb: 3 }} />
-      <Typography variant='h2' component='h2' sx={{ mb: 1, fontSize: 18, fontWeight: 'bold' }}>
-        多要素認証（TOTP）
-      </Typography>
-      <Typography variant='body2' sx={{ mb: 1, color: 'text.secondary' }}>
-        認証アプリの6桁コードを使って、ログイン時のセキュリティを強化できます。
-      </Typography>
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minHeight: 38 }}>
-        {isSwitchLoading ? (
-          <CircularProgress size={24} aria-label='多要素認証の状態を読み込み中' />
-        ) : (
-          <MfaSwitchLabel checked={isSwitchChecked} onChange={onChangeEnableSwitch} />
-        )}
-      </Box>
-      <FormProvider {...methods}>
-        <MfaSetupDialog
-          isOpen={isSetupDialogOpen}
-          isPending={isPendingVerifyTotpSetup || isPendingUpdateMfaPreference}
-          isPendingSetupTotp={isPendingSetupTotp}
-          onClose={onCloseSetupDialog}
-          onPrimaryClick={handleSubmit(onEnable)}
-          setupTotpUri={setupTotpUri}
+    <>
+      <MfaEnableSwitch isLoading={isSwitchLoading} checked={isSwitchChecked} onChange={onChangeEnableSwitch} />
+      <Dialog
+        open={isSetupDialogOpen}
+        title='多要素認証のセットアップ'
+        primaryButtonName='有効化'
+        onClose={onCloseSetupDialog}
+        onPrimaryClick={onPrimaryClick}
+        primaryLoading={isSetupPending}
+        size='sm'
+      >
+        <Typography variant='body2'>
+          認証アプリで以下のQRコードを読み取り、表示された6桁のコードを入力してください。
+        </Typography>
+        <Box sx={qrCodeAreaSx}>
+          {isPendingSetupTotp ? (
+            <CircularProgress size={40} aria-label='QRコードを読み込み中' />
+          ) : qrCodeDataUrl ? (
+            <Box component='img' src={qrCodeDataUrl} alt='QRコード' sx={{ width: 200, height: 200 }} />
+          ) : (
+            <Typography variant='body2' color='text.secondary'>
+              QRコードの取得に失敗しました
+            </Typography>
+          )}
+        </Box>
+        <TextField
+          label='認証コード'
+          type='text'
+          inputMode='numeric'
+          autoComplete='one-time-code'
+          {...register('code')}
+          error={!!errors.code}
+          helperText={errors.code?.message}
+          fullWidth
         />
-      </FormProvider>
-    </Box>
+        {setupErrorMessage && (
+          <Typography color='error' variant='body2' sx={{ whiteSpace: 'pre-line' }}>
+            {setupErrorMessage}
+          </Typography>
+        )}
+      </Dialog>
+    </>
   );
 };
