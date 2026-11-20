@@ -98,18 +98,20 @@ export const MfaSettings = () => {
     setSetupErrorMessage('');
 
     if (needsTotpSetup) {
-      await verifyTotpSetup(code, {
-        onSuccess: () => setHasVerifiedTotp(true),
-        onError: () => setSetupErrorMessage('認証コードの確認に失敗しました。コードを確認して、もう一度お試しください'),
-      });
+      try {
+        await verifyTotpSetup(code, { onSuccess: () => setHasVerifiedTotp(true) });
+      } catch {
+        setSetupErrorMessage('認証コードの確認に失敗しました。コードを確認して、もう一度お試しください');
+        return;
+      }
     }
-    await updateMfaPreference(true, {
-      onSuccess: onCloseSetupDialog,
-      onError: () =>
-        setSetupErrorMessage(
-          '認証コードの確認は成功しています。多要素認証の有効化に失敗しました。\nキャンセル後、もう一度スイッチを ON にしてください。',
-        ),
-    });
+    try {
+      await updateMfaPreference(true, { onSuccess: onCloseSetupDialog });
+    } catch {
+      setSetupErrorMessage(
+        '認証コードの確認は成功しています。多要素認証の有効化に失敗しました。\nキャンセル後、もう一度スイッチを ON にしてください。',
+      );
+    }
   };
 
   const onPrimaryClick = handleSubmit(onEnable);
