@@ -35,6 +35,8 @@ export const MfaSettings = () => {
   const { isOpen: isSetupDialogOpen, onOpen: openSetupDialog, onClose: closeSetupDialog } = useDialogState();
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>();
   const [setupErrorMessage, setSetupErrorMessage] = useState('');
+  const [hasVerifiedTotp, setHasVerifiedTotp] = useState(false);
+  const needsTotpSetup = shouldTotpSetup && !hasVerifiedTotp;
   const isSwitchLoading = isPendingMfaState || isPendingUpdateMfaPreference;
   const isSetupPending = isPendingVerifyTotpSetup || isPendingUpdateMfaPreference;
   const setupTotpUri = totpSetupDetails?.getSetupUri(TOTP_APP_NAME).href;
@@ -76,8 +78,8 @@ export const MfaSettings = () => {
 
   /**
    * 多要素認証のスイッチを変更したときの処理
-   * TOTPの設定が必要な場合( shouldTotpSetupがtrue )、ダイアログを開く
-   * TOTPを設定する必要がない場合は多要素認証を有効にする
+   * TOTPの確認がまだの場合、ダイアログを開く
+   * 確認済み、またはTOTP登録済みの場合は多要素認証を有効にする
    * @param event - スイッチの変更イベント
    */
   const onChangeEnableSwitch = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -88,28 +90,26 @@ export const MfaSettings = () => {
       });
       return;
     }
-    if (shouldTotpSetup) openSetupDialog();
+    if (needsTotpSetup) openSetupDialog();
     else await updateMfaPreference(true);
   };
 
   const onEnable = async ({ code }: MfaSetupFormValues) => {
     setSetupErrorMessage('');
 
-    if (shouldTotpSetup) {
-      try {
-        await verifyTotpSetup(code);
-      } catch {
-        setSetupErrorMessage('認証コードの確認に失敗しました。コードを確認して、もう一度お試しください');
-        return;
-      }
+    if (needsTotpSetup) {
+      await verifyTotpSetup(code, {
+        onSuccess: () => setHasVerifiedTotp(true),
+        onError: () => setSetupErrorMessage('認証コードの確認に失敗しました。コードを確認して、もう一度お試しください'),
+      });
     }
-    try {
-      await updateMfaPreference(true, { onSuccess: onCloseSetupDialog });
-    } catch {
-      setSetupErrorMessage(
-        '認証コードの確認は成功しています。多要素認証の有効化に失敗しました。\nキャンセル後、もう一度スイッチを ON にしてください。',
-      );
-    }
+    await updateMfaPreference(true, {
+      onSuccess: onCloseSetupDialog,
+      onError: () =>
+        setSetupErrorMessage(
+          '認証コードの確認は成功しています。多要素認証の有効化に失敗しました。\nキャンセル後、もう一度スイッチを ON にしてください。',
+        ),
+    });
   };
 
   const onPrimaryClick = handleSubmit(onEnable);

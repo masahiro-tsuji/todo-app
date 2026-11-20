@@ -153,9 +153,6 @@ describe('MfaSettings コンポーネントのテスト', () => {
 
   test('設定更新の失敗後に再実行した場合は認証コードの確認をスキップすること', async () => {
     jest.mocked(updateMFAPreference).mockRejectedValueOnce(new Error('update failed'));
-    jest.mocked(verifyTOTPSetup).mockImplementation(async () => {
-      jest.mocked(fetchMFAPreference).mockResolvedValue({ enabled: ['TOTP'], preferred: undefined });
-    });
     renderMfaSettings();
 
     await userEvent.click(await screen.findByRole('switch', { name: /現在.*無効/ }));
@@ -174,6 +171,32 @@ describe('MfaSettings コンポーネントのテスト', () => {
       expect(screen.queryByRole('dialog', { name: '多要素認証のセットアップ' })).not.toBeInTheDocument();
     });
     expect(verifyTOTPSetup).toHaveBeenCalledTimes(1);
+    expect(updateMFAPreference).toHaveBeenCalledTimes(2);
+  });
+
+  test('設定更新の失敗後にスイッチを入れ直した場合はQRを出さず有効化だけ実行すること', async () => {
+    jest.mocked(updateMFAPreference).mockRejectedValueOnce(new Error('update failed'));
+    renderMfaSettings();
+
+    await userEvent.click(await screen.findByRole('switch', { name: /現在.*無効/ }));
+    const setupDialog = await waitFor(() => getSetupDialog());
+    await userEvent.type(within(setupDialog).getByLabelText(/認証コード/), '123456');
+    await userEvent.click(within(setupDialog).getByRole('button', { name: '有効化' }));
+
+    await waitFor(() => {
+      expect(within(getSetupDialog()).getByText(/有効化に失敗しました/)).toBeInTheDocument();
+    });
+
+    await userEvent.click(within(getSetupDialog()).getByRole('button', { name: 'キャンセル' }));
+    await userEvent.click(await screen.findByRole('switch', { name: /現在.*無効/ }));
+
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog', { name: '多要素認証のセットアップ' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('img', { name: 'QRコード' })).not.toBeInTheDocument();
+      expect(screen.getByRole('switch', { name: /現在.*有効/ })).toBeChecked();
+    });
+    expect(verifyTOTPSetup).toHaveBeenCalledTimes(1);
+    expect(setUpTOTP).toHaveBeenCalledTimes(1);
     expect(updateMFAPreference).toHaveBeenCalledTimes(2);
   });
 
